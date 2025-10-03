@@ -40,7 +40,6 @@ const Register: React.FC = () => {
 
   const onSubmit: SubmitHandler<RegisterFormInputs> = async (data) => {
     try {
-      console.log(data);
       
       const res = await axios.post(`${import.meta.env.VITE_NODE_BASE_URL}/register`, {
         name: data.name,
