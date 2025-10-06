@@ -6,11 +6,15 @@ import { useNavigate } from 'react-router-dom';
 import Back_btn from '../../components/Buttons/Back_btn';
 import BrudCrumbs from '../../components/BrudCrumbs';
 import categories from "../../data/categories.json";
+import experience from "../../data/experience.json";
+import skills from "../../data/skills.json";
 import DarkModeSelect from '../../components/DarkModeSelect';
 import { motion } from "framer-motion";
 import Submit_btn from '../../components/Buttons/Submit_btn';
 import { useState } from 'react';
 import { AiOutlinePlus } from 'react-icons/ai';
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 type FormInputs = {
   title: string,
@@ -51,12 +55,12 @@ const Add = () => {
     label: c,
   }));
 
-  const skills_options = categories.map((c, index) => ({
+  const skills_options = skills.map((c, index) => ({
     value: index,
     label: c,
   }));
 
-  const experience_options = categories.map((c, index) => ({
+  const experience_options = experience.map((c, index) => ({
     value: index,
     label: c,
   }));
@@ -111,7 +115,11 @@ const Add = () => {
         <Back_btn url={"/projects/list"} />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className='px-3'>
+        <div className='mt-6 p-2 border-l-4 border-red-400 dark:border-red-500 bg-red-100 dark:bg-red-600/20 rounded-sm'>
+          <h3 className='text-xl font-semibold text-red-700 dark:text-red-100'>Project Details</h3>
+        </div>
+
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-3'>
 
           <div className="mt-3">
@@ -132,7 +140,7 @@ const Add = () => {
 
           <div className="mt-3">
             <label htmlFor="description" className='form-label'>Description</label>
-            <textarea id="description" className='form-control'
+            <textarea id="description" className='form-control' rows={8}
               {...register("description",
                 {
                   required: "Description is required!",
@@ -200,6 +208,12 @@ const Add = () => {
             />
             {errors.experience && (<span className="text-red-500 mt-1 text-sm"> {errors.experience.message}</span>)}
           </div>
+        </div>
+
+        <div className='mt-6 p-2 border-l-4 border-red-400 dark:border-red-500 bg-red-100 dark:bg-red-600/20 rounded-sm'>
+          <h3 className='text-xl font-semibold text-red-700 dark:text-red-100'>Budget & Time</h3>
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-3'>
 
           <div className="mt-3">
             <label htmlFor="" className='form-label'>Budget Type</label>
@@ -251,6 +265,57 @@ const Add = () => {
               {errors.estimated_budget && (<span className="text-red-500 mt-1 text-sm"> {errors.estimated_budget.message}</span>)}
             </motion.div>
           )}
+
+          <div className="mt-3">
+            <label htmlFor="deadline" className="form-label">Deadline</label>
+
+            <Controller
+              control={control}
+              name="deadline"
+              rules={{ required: "Deadline is required" }}
+              render={({ field }) => (
+                <Flatpickr
+                  {...field}
+                  id="deadline"
+                  className="form-control"
+                  options={{
+                    dateFormat: "d-m-Y",
+                    allowInput: true,
+                    minDate: Date()
+                  }}
+                />
+              )}
+            />
+
+            {errors.deadline && (
+              <span className="text-red-500 mt-1 text-sm">
+                {errors.deadline.message}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className='mt-6 p-2 border-l-4 border-red-400 dark:border-red-500 bg-red-100 dark:bg-red-600/20 rounded-sm'>
+          <h3 className='text-xl font-semibold text-red-700 dark:text-red-100'>Team Requirements</h3>
+        </div>
+
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-3'>
+
+          <div className="mt-3">
+            <label htmlFor="no_of_freelancer" className="form-label">How many freelancers required</label>
+            <input
+              type="text" className="form-control" id='no_of_freelancer'
+              {...register("no_of_freelancer", {
+                required: "no_of_freelancer is required",
+              })}
+            />
+
+            {errors.no_of_freelancer && (<span className="text-red-500 mt-1 text-sm"> {errors.no_of_freelancer.message}</span>)}
+          </div>
+        </div>
+
+        <div className='mt-6 p-2 border-l-4 border-red-400 dark:border-red-500 bg-red-100 dark:bg-red-600/20 rounded-sm'>
+          <h3 className='text-xl font-semibold text-red-700 dark:text-red-100'>Attachments</h3>
         </div>
 
         <div className="mt-3">
@@ -306,7 +371,47 @@ const Add = () => {
           </div>
         </div>
 
-        <div className='flex justify-end'>
+        <div className='mt-6 p-2 border-l-4 border-red-400 dark:border-red-500 bg-red-100 dark:bg-red-600/20 rounded-sm'>
+          <h3 className='text-xl font-semibold text-red-700 dark:text-red-100'>Optional Details</h3>
+        </div>
+
+        <div className='grid grid-cols-1 gap-4 mt-3'>
+
+          <div className="mt-3">
+            <label htmlFor="milestone" className='form-label'>Milestone <small className="text-red-400">(optional)</small></label>
+            <textarea id="milestone" className='form-control' rows={8}
+              {...register("milestone",
+                {
+                  minLength: {
+                    value: 2,
+                    message: "Milestone must be minimum 2 characters length!"
+                  }
+                })}></textarea>
+
+            {errors.milestone && (<span className="text-red-500 mt-1 text-sm"> {errors.milestone.message}</span>)}
+
+          </div>
+        </div>
+
+        <div className='grid grid-cols-1 gap-4 mt-3'>
+
+          <div className="mt-3">
+            <label htmlFor="spl_instruction" className='form-label'>Special Instruction <small className="text-red-400">(optional)</small></label>
+            <textarea id="spl_instruction" className='form-control' rows={8}
+              {...register("spl_instruction",
+                {
+                  minLength: {
+                    value: 2,
+                    message: "Special Instruction must be minimum 2 characters length!"
+                  }
+                })}></textarea>
+
+            {errors.spl_instruction && (<span className="text-red-500 mt-1 text-sm"> {errors.spl_instruction.message}</span>)}
+
+          </div>
+        </div>
+
+        <div className='flex justify-end mt-5'>
           <Submit_btn isSubmitting={isSubmitting} />
         </div>
       </form>
