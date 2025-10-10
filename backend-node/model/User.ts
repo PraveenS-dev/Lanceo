@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
+    _id: string;
     name: string;
     username: string;
     email: string;
@@ -10,7 +11,7 @@ export interface IUser extends Document {
     verifyToken?: string;
     status?: 1 | 0;
     trash?: "YES" | "NO";
-    createdAt?: Date;
+    created_at?: Date;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema({
@@ -23,7 +24,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     verifyToken: { type: String },
     status: { type: Number, enum: [1, 0], default: 1 },
     trash: { type: String, enum: ["YES", "NO"], default: "NO" },
-    createdAt: { type: Date, default: Date.now },
+    created_at: { type: Date, default: Date.now },
 });
 
 

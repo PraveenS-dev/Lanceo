@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import authMiddleware from "../middlewares/authMiddleware";
-import { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser } from "../controller/Admin/UserController";
+import { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser, getUserName } from "../controller/Admin/UserController";
 
 const router = express.Router();
 
@@ -13,5 +13,6 @@ router.post('/uniqueUserName', uniqueUserName);
 // Protected routes (require authentication)
 router.get('/fetchUser', fetchUser);
 router.get('/me', authMiddleware, getCurrentUser);
+router.get('/getUserName', authMiddleware, getUserName);
 
 export default router;

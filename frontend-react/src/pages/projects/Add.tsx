@@ -20,16 +20,17 @@ type FormInputs = {
   title: string,
   description: string,
   category: number,
-  skills: number[],
+  skills: string,
   attachment: File,
   experience: number,
   budget_type: number,
   estimated_budget: string | null,
   estimated_hour: string | null,
-  deadline: string,
+  deadline: Date,
   no_of_freelancer: number,
   milestone: string,
   spl_instruction: string,
+  created_by: string,
 }
 
 type UploadFile = {
@@ -38,7 +39,7 @@ type UploadFile = {
 };
 
 const Add = () => {
-  const { control, watch, register, reset, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormInputs>({ mode: "onChange" });
+  const { control, watch, register, reset, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormInputs>({ mode: "onChange" });
   const { user } = useAuth();
   const navigate = useNavigate();
   const budgetType = Number(watch("budget_type"));
@@ -95,7 +96,28 @@ const Add = () => {
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
-      const res = await Store(data);
+
+      const formData = new FormData();
+
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "skills" && Array.isArray(value)) {
+          formData.append(key, value.join(","));
+        } else if (Array.isArray(value)) {
+          value.forEach((v) => formData.append(`${key}[]`, String(v)));
+        } else if (value !== null && value !== undefined) {
+          formData.append(key, String(value));
+        }
+      });
+
+      files.forEach((f) => {
+        formData.append("attachments", f.file);
+      });
+
+      formData.append("created_by", String(user?.id));
+
+
+      const res = await Store(formData);
 
       ShowToast("Project added successfully!", "success")
       navigate("/projects/list");
@@ -278,10 +300,11 @@ const Add = () => {
                   {...field}
                   id="deadline"
                   className="form-control"
+                  autoComplete='off'
                   options={{
                     dateFormat: "d-m-Y",
                     allowInput: true,
-                    minDate: Date()
+                    minDate: Date.now()
                   }}
                 />
               )}

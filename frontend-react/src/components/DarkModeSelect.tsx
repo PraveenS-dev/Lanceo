@@ -83,6 +83,19 @@ const DarkModeSelect: React.FC<Props> = ({ options, placeholder, isMulti = false
         }),
     };
 
+    // Helper to compare option.value and incoming value loosely (string/number)
+    const isEqual = (optVal: any, val: any) => String(optVal) === String(val);
+
+    const computeValue = () => {
+        if (isMulti) {
+            if (!Array.isArray(value)) return [];
+            return options.filter((option) => value.some((v: any) => isEqual(option.value, v)));
+        }
+
+        if (value === null || value === undefined || value === "") return null;
+
+        return options.find((option) => isEqual(option.value, value)) || null;
+    };
 
     return (
         <Select
@@ -90,15 +103,11 @@ const DarkModeSelect: React.FC<Props> = ({ options, placeholder, isMulti = false
             placeholder={placeholder}
             isMulti={isMulti}
             styles={customStyles}
-            value={
-                isMulti
-                    ? options.filter(option => value?.includes(option.value))
-                    : options.find(option => option.value === value)
-            }
-            onChange={(selected) =>
+            value={computeValue()}
+            onChange={(selected: any) =>
                 isMulti
                     ? onChange(selected ? selected.map((s: any) => s.value) : [])
-                    : onChange(selected?.value)
+                    : onChange((selected as any)?.value)
             }
         />
     );
