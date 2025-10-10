@@ -17,21 +17,31 @@ const Mainlayout: React.FC<MainProps> = ({ children, pageUrl, pageName }) => {
   }, [pageName]);
 
   return (
-    <div className="flex flex-col w-full h-screen bg-gray-50 dark:bg-gray-800">
+    <div className="flex w-full min-h-screen bg-gray-100 dark:bg-gray-800 flex-col">
 
-      <Topbar toggleLeftMenu={() => setShowLeftMenu(!showLeftMenu)} />
+      {/* Fixed Topbar */}
+      <div className="fixed top-0 left-0 w-full z-30">
+        <Topbar toggleLeftMenu={() => setShowLeftMenu(!showLeftMenu)} />
+      </div>
 
-      <div className="flex flex-1 flex-row">
-        {/* Leftmenu */}
-        <Leftmenu activePath={pageUrl} show={showLeftMenu} hideMenu={() => setShowLeftMenu(false)} />
+      {/* Content area */}
+      <div className="flex flex-1 pt-16">
+        {/* Desktop Leftmenu */}
+        <div className="hidden sm:block">
+          <Leftmenu activePath={pageUrl} show={false} hideMenu={() => { }} />
+        </div>
 
         {/* Main content */}
-        <div className="flex-1 p-4 text-gray-800 dark:text-white">
+        <div className="flex-1 p-4 text-gray-800 dark:text-white sm:ml-71">
           {children}
         </div>
+
+        {/* Mobile Leftmenu */}
+        <Leftmenu activePath={pageUrl} show={showLeftMenu} hideMenu={() => setShowLeftMenu(false)} />
       </div>
     </div>
   );
-}
+};
+
 
 export default Mainlayout;

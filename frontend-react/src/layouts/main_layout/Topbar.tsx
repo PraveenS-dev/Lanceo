@@ -5,6 +5,7 @@ import { IoIosLogOut } from "react-icons/io";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { getUserRole } from "../../services/Helpers";
+import Notification from "../../pages/Notification";
 
 type TopbarProps = {
     toggleLeftMenu: () => void;
@@ -24,8 +25,8 @@ const Topbar: React.FC<TopbarProps> = ({ toggleLeftMenu }) => {
             <div className="flex items-center gap-2">
 
                 <FaUser size={32} className="text-black dark:text-white" />
-                <h1 className="text-black dark:text-white font-bold text-lg hidden sm:block">
-                    Logo
+                <h1 className="text-black dark:text-white font-bold text-2xl hidden sm:block">
+                    {import.meta.env.VITE_APP_NAME}
                 </h1>
                 <button onClick={toggleLeftMenu} className="sm:hidden text-black dark:text-white text-2xl mr-2">
                     <FaBars />
@@ -38,6 +39,7 @@ const Topbar: React.FC<TopbarProps> = ({ toggleLeftMenu }) => {
                         <span className="text-xs opacity-75">({getUserRole(user.role)})</span>
                     </div>
                 )}
+                <Notification />
                 <ThemeToggle />
                 <button
                     onClick={handleLogout}

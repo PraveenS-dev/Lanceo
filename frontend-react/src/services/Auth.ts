@@ -14,7 +14,7 @@ export interface UserData {
     role: number;
     isVerified: boolean;
     status: number;
-    createdAt: string;
+    created_at: string;
 }
 
 export interface LoginResponse {
@@ -63,6 +63,40 @@ apiClient.interceptors.response.use(
     }
 );
 
+const apiMultipart = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    },
+});
+
+// Add request interceptor to include token
+apiMultipart.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Add response interceptor to handle token expiration
+apiMultipart.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const UserLogin = async (data: LoginData): Promise<LoginResponse> => {
     try {
         const res = await apiClient.post('/login', {
@@ -93,4 +127,4 @@ export const fetchUserById = async (id: string): Promise<{ userDetails: UserData
     }
 };
 
-export default apiClient;
+export { apiClient, apiMultipart };

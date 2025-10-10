@@ -130,7 +130,7 @@ interface UserData {
   role: number; // 2 = Client, 3 = Freelancer
   isVerified: boolean;
   status: number; // 1 = Active, 0 = Inactive
-  createdAt: string;
+  created_at: string;
 }
 ```
 

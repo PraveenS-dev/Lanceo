@@ -1,0 +1,25 @@
+/* Stylish neon red scrollbar for Leftmenu, dark mode compatible */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #ff1749 0%, #ff1749 100%);
+  box-shadow: 0 0 8px 2px #ff1749, 0 0 2px 1px #fff inset;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #ff1749 #0000;
+}
+/* Dark mode support */
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #ff1749 0%, #ff1749 100%);
+  box-shadow: 0 0 8px 2px #ff1749, 0 0 2px 1px #222 inset;
+}
+.dark .custom-scrollbar {
+  scrollbar-color: #ff1749 #222;
+}

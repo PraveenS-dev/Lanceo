@@ -2,9 +2,62 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @keyframes progress {
-  from { width: 100%; }
-  to { width: 0%; }
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
 }
+
 .animate-progress {
   animation: progress 3s linear forwards;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  font-size: 16px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.dark .form-label {
+  color: #d1d5db;
+}
+
+/* Input, textarea, select */
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  background-color: #fff;
+  color: #111827;
+  transition: all 0.2s ease-in-out;
+}
+
+.dark .form-control {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+.form-control:focus {
+  border-color: #0d2fc7;
+  box-shadow: 0 0 0 3px rgba(11, 35, 196, 0.2);
+}
+
+.form-control:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.dark .form-control:disabled {
+  background-color: #374151;
+  color: #6b7280;
 }

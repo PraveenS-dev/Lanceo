@@ -40,7 +40,6 @@ const Register = async (req: Request, res: Response) => {
         return res.status(200).json({ data: newUser });
 
     } catch (err: any) {
-        console.log(err.message);
         return res.status(500).json({ message: err });
     }
 }
@@ -126,12 +125,12 @@ const getCurrentUser = async (req: Request, res: Response) => {
     try {
         // This function expects req.user to be set by authMiddleware
         const user = (req as any).user;
-        
+
         if (!user) {
             return res.status(401).json({ message: "User not authenticated" });
         }
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             success: true,
             user: {
                 id: user._id,
@@ -141,7 +140,7 @@ const getCurrentUser = async (req: Request, res: Response) => {
                 role: user.role,
                 isVerified: user.isVerified,
                 status: user.status,
-                createdAt: user.createdAt
+                created_at: user.created_at
             }
         });
     } catch (err) {
@@ -150,4 +149,18 @@ const getCurrentUser = async (req: Request, res: Response) => {
     }
 };
 
-export { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser };
+const getUserName = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.query;
+
+        const user = await User.findById(userId).select("name");
+        const userName = user?.name;
+        return res.status(200).json({ name: userName })
+
+    } catch (err) {
+        console.error("Fetch user error:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
+export { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser, getUserName };
