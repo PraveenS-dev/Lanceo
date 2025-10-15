@@ -145,3 +145,90 @@ export const useParentName = (parentId?: string) => {
 
   return name;
 };
+
+export const useProjectNames = (projectIds: string[]) => {
+  const [names, setNames] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!projectIds?.length) return;
+
+    const fetchNames = async () => {
+      try {
+        const res = await apiClient.get("/projects/getMultipleNames", {
+          params: { ids: projectIds.join(",") },
+        });
+        setNames(res.data.names);
+      } catch (err) {
+        console.error("Error fetching project names:", err);
+      }
+    };
+
+    fetchNames();
+  }, [projectIds]);
+
+  return names;
+};
+
+export const getThreeStatus = (Status: number) => {
+  switch (Status) {
+    case 1:
+      return (
+        <span className="inline-flex items-center gap-1 bg-yellow-600 text-white rounded-3xl px-3 py-1 text-xs font-semibold shadow-sm">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-3 w-3 animate-pulse"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <circle cx="12" cy="12" r="6" strokeWidth={2} />
+          </svg>
+          Pending
+        </span>
+      );
+    case 2:
+      return (
+        <span className="inline-flex items-center gap-1 bg-green-600 text-white rounded-3xl px-3 py-1 text-xs font-semibold shadow-sm">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-3 w-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={3}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          Approved
+        </span>
+      );
+    case 3:
+      return (
+        <span className="inline-flex items-center gap-1 bg-red-600 text-white rounded-3xl px-3 py-1 text-xs font-semibold shadow-sm">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-3 w-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={3}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+          Rejected
+        </span>
+      );
+    default:
+      return null;
+  }
+};
+
+

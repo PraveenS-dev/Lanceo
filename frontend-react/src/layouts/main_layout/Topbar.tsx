@@ -6,6 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { getUserRole } from "../../services/Helpers";
 import Notification from "../../pages/Notification";
+import ChatDropdown from "../../components/ChatDropdown/ChatDropdown";
 
 type TopbarProps = {
     toggleLeftMenu: () => void;
@@ -39,6 +40,7 @@ const Topbar: React.FC<TopbarProps> = ({ toggleLeftMenu }) => {
                         <span className="text-xs opacity-75">({getUserRole(user.role)})</span>
                     </div>
                 )}
+                <ChatDropdown userId={user?.id}/>
                 <Notification />
                 <ThemeToggle />
                 <button

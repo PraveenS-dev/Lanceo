@@ -12,6 +12,7 @@ export interface LeftMenuDetails extends Document {
     trash?: "YES" | "NO";
     created_at?: Date;
     created_by: string;
+    updated_by: string;
     deletedAt?: Date;
 }
 
@@ -27,6 +28,7 @@ const LeftMenuSchema: Schema<LeftMenuDetails> = new mongoose.Schema({
     trash: { type: String, enum: ["YES", "NO"], default: "NO" },
     created_at: { type: Date, default: Date.now },
     created_by: { type: String },
+    updated_by: { type: String },
     deletedAt: { type: Date },
 });
 

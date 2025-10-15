@@ -108,3 +108,12 @@ export const getProjectData = async (id: string | undefined) => {
         throw err;
     }
 }
+
+export const getAllProjectName = async () => {
+    try {
+        const res = await apiClient.get('/projects/getAllName');
+        return res.data.data;
+    } catch (err: any) {
+        throw err;
+    }
+}

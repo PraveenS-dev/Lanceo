@@ -18,6 +18,8 @@ import LeftMenuList from './pages/admin/LeftMenu/LeftMenuList'
 import LeftMenuAdd from './pages/admin/LeftMenu/LeftMenuAdd'
 import LeftMenuEdit from './pages/admin/LeftMenu/LeftMenuEdit'
 import LeftMenuView from './pages/admin/LeftMenu/LeftMenuView'
+import Bitting_list from './pages/bitings/Bitting_list'
+import Bitting_view from './pages/bitings/Bitting_view'
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -86,10 +88,25 @@ function App() {
           </ProtectedRoute>
         } />
 
+        {/* Bitting Routes */}
+        <Route path='/bittings/list' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/bittings/list" pageName="Bittings List"><Bitting_list /></Mainlayout>
+          </ProtectedRoute>
+        } />
+        <Route path='/bittings/view/:project_id' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/bittings/list" pageName="Bittings View"><Bitting_view /></Mainlayout>
+          </ProtectedRoute>
+        } />
+
         {/* Default redirect */}
         <Route path='/' element={<Navigate to="/dashboard" replace />} />
       </Routes>
-      <Toaster />
+      <Toaster
+        position="top-right"
+        containerStyle={{ top: '55px' }}
+      />
     </BrowserRouter>
   )
 }

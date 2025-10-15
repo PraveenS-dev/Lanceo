@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from "framer-motion";
 import "flatpickr/dist/flatpickr.min.css";
 import { ShowToast } from '../../../utils/showToast';
-import { getAllParents, getLeftMenuData, MenuNameUnique, Store } from '../../../services/LeftMenu';
+import { getAllParents, getLeftMenuData, MenuNameUnique, Store, Update } from '../../../services/LeftMenu';
 import BrudCrumbs from '../../../components/BrudCrumbs';
 import DarkModeSelect from '../../../components/DarkModeSelect';
 import Submit_btn from '../../../components/Buttons/Submit_btn';
@@ -34,7 +34,7 @@ const LeftMenuAdd = () => {
   const crumbs = [
     { label: "Home", path: "/dashboard" },
     { label: "LeftMenu", path: "/leftmenu/list" },
-    { label: "Add" },
+    { label: "Edit" },
   ];
 
   const role_options = [
@@ -52,7 +52,7 @@ const LeftMenuAdd = () => {
         link: res?.link ?? "",
         role: res?.role ? String_to_Array(res.role) : [],
         icon: res?.icon ?? "",
-        isParent: res?.isParent ?? "",
+        isParent: String(res?.isParent) ?? "",
         parentId: res?.parentId ?? "",
         sort_order: res?.sort_order ?? "",
         created_by: res?.created_by ?? "",
@@ -84,10 +84,11 @@ const LeftMenuAdd = () => {
           formData.append(key, String(value));
         }
       });
+      
+      formData.append("LeftMenu_id", String(id));
+      formData.append("updated_by", String(user?.id));
 
-      formData.append("created_by", String(user?.id));
-
-      const res = await Store(formData);
+      const res = await Update(formData);
 
       ShowToast("LeftMenu added successfully!", "success")
       navigate("/leftmenu/list");
