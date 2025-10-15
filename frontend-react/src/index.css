@@ -15,6 +15,126 @@
   animation: progress 3s linear forwards;
 }
 
+/* Toast fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Floating particle motion */
+@keyframes floatParticle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+/* Icon animations */
+@keyframes iconPop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+
+  80% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes iconShake {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  20% {
+    transform: rotate(-15deg);
+  }
+
+  40% {
+    transform: rotate(15deg);
+  }
+
+  60% {
+    transform: rotate(-10deg);
+  }
+
+  80% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes iconPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes iconWiggle {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-5deg);
+  }
+
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.animate-icon-pop {
+  animation: iconPop 0.5s ease-out;
+}
+
+.animate-icon-shake {
+  animation: iconShake 0.6s ease-in-out;
+}
+
+.animate-icon-pulse {
+  animation: iconPulse 1.2s ease-in-out infinite;
+}
+
+.animate-icon-wiggle {
+  animation: iconWiggle 0.8s ease-in-out infinite;
+}
+
+
 .form-label {
   display: block;
   font-weight: 600;

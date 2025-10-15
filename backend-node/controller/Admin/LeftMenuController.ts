@@ -64,7 +64,7 @@ const Store = async (req: any, res: Response) => {
                     subject: "New LeftMenu has been created",
                     action: "created",
                     created_by: createdByName,
-                    LeftMenu_link: `${process.env.FRONTEND_URL}/LeftMenu/list`,
+                    link: `${process.env.FRONTEND_URL}/LeftMenu/list`,
                 });
 
                 await sendMail(emails, "New LeftMenu Created!", html);
@@ -131,7 +131,7 @@ const Edit = async (req: any, res: Response) => {
                     subject: "LeftMenu has been updated",
                     action: "updated",
                     created_by: createdByName,
-                    LeftMenu_link: `${process.env.FRONTEND_URL}/LeftMenu/list`,
+                    link: `${process.env.FRONTEND_URL}/LeftMenu/list`,
                 });
 
                 await sendMail(emails, "LeftMenu updated!", html);

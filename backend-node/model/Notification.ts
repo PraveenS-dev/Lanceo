@@ -16,7 +16,7 @@ const NotificationSchema: Schema<NotificationDetails> = new mongoose.Schema({
     title: { type: String, required: true },
     subject: { type: String, required: true },
     assigned_users: { type: String, required: true },
-    url: { type: String, required: true },
+    url: { type: String },
     status: { type: Number, enum: [1, 0], default: 1 },
     trash: { type: String, enum: ["YES", "NO"], default: "NO" },
     created_at: { type: Date, default: Date.now },

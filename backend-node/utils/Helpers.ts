@@ -28,3 +28,10 @@ export const loadEmailTemplate = (templateName: string, variables: Record<string
 
   return html;
 };
+
+export const getEmailIdFromIds = async (id: string | string[]) => {
+    const idsArray = Array.isArray(id) ? id : [id];
+
+    const users = await User.find({ _id: { $in: idsArray } });
+    return users.map((user) => (user.email));
+}

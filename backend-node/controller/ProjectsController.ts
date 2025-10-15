@@ -101,7 +101,7 @@ const Store = async (req: any, res: Response) => {
                     subject: "New Project has been created",
                     action: "created",
                     created_by: createdByName,
-                    project_link: `${process.env.FRONTEND_URL}/projects/list`,
+                    link: `${process.env.FRONTEND_URL}/projects/list`,
                 });
 
                 await sendMail(emails, "New Project Created!", html);
@@ -185,7 +185,7 @@ const Edit = async (req: any, res: Response) => {
                     subject: "Project has been updated",
                     action: "Updated",
                     created_by: createdByName,
-                    project_link: `${process.env.FRONTEND_URL}/projects/list`,
+                    link: `${process.env.FRONTEND_URL}/projects/list`,
                 });
 
                 await sendMail(emails, "Project Updated!", html);
@@ -316,4 +316,38 @@ const ExistUniqueCheck = async (req: Request, res: Response) => {
     }
 }
 
-export { List, Store, Edit, GetData, Delete, UniqueCheck, ExistUniqueCheck };
+const getAllName = async (req: Request, res: Response) => {
+
+    try {
+
+        const searchCondition: any = { status: 1, trash: "NO" };
+
+        const listData = await Projects.find(searchCondition);
+
+        const result = listData.map((data) => (
+            { value: data._id, label: data.title }
+        ))
+
+        res.json({ data: result });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err });
+    }
+}
+
+const getProjectName = async (req: Request, res: Response) => {
+
+    try {
+        const { project_id } = req.query;
+
+        const project = await Projects.findById(project_id).select("title");
+        const projectName = project?.title;
+        return res.status(200).json({ name: projectName })
+
+    } catch (err) {
+        console.error("Fetch project error:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
+export { List, Store, Edit, GetData, Delete, UniqueCheck, ExistUniqueCheck, getAllName, getProjectName };

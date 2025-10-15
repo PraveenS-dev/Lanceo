@@ -1,6 +1,6 @@
 import express from "express";
 import authMiddleware from "../middlewares/authMiddleware";
-import { List, Store, Edit, GetData, Delete, UniqueCheck, ExistUniqueCheck } from "../controller/ProjectsController";
+import { List, Store, Edit, GetData, Delete, UniqueCheck, ExistUniqueCheck, getAllName, getProjectName } from "../controller/ProjectsController";
 import path from "path";
 import fs from "fs";
 const multer = require('multer');
@@ -32,5 +32,7 @@ router.get('/getData', authMiddleware, GetData);
 router.post('/delete', authMiddleware, Delete);
 router.post('/uniqueCheck', authMiddleware, UniqueCheck);
 router.post('/ExistUniqueCheck', authMiddleware, ExistUniqueCheck);
+router.get('/getAllName', authMiddleware, getAllName);
+router.get('/getProjectName', authMiddleware, getProjectName);
 
 export default router;
