@@ -1,13 +1,14 @@
 import express from "express";
 import authMiddleware from "../middlewares/authMiddleware";
-import { List, Store, Edit, GetData, Delete, UniqueCheck, ExistUniqueCheck, getAllName, getProjectName, getAllNameBasedonRole } from "../controller/ProjectsController";
+import { List, GetData, Delete, Approval, AttachmentSubmittion, getAllAttachment, submitPayment } from "../controller/ContractController";
+import { listByContract as approvalLogList } from "../controller/ContractApprovalLogController";
 import path from "path";
 import fs from "fs";
 const multer = require('multer');
 
 const router = express.Router();
 
-const upload_path = path.join(__dirname, "../uploads/projects");
+const upload_path = path.join(__dirname, "../uploads/contracts");
 if (!fs.existsSync(upload_path)) {
     fs.mkdirSync(upload_path, { recursive: true });
 }
@@ -26,14 +27,12 @@ const upload = multer({
 });
 
 router.get('/list', authMiddleware, List);
-router.post('/store', authMiddleware, upload.array("attachments", 3), Store);
-router.post('/update', authMiddleware, upload.array("attachments", 3), Edit);
+router.post('/attachmentSubmittion', authMiddleware, upload.array("attachments", 3), AttachmentSubmittion);
 router.get('/getData', authMiddleware, GetData);
 router.post('/delete', authMiddleware, Delete);
-router.post('/uniqueCheck', authMiddleware, UniqueCheck);
-router.post('/ExistUniqueCheck', authMiddleware, ExistUniqueCheck);
-router.get('/getAllName', authMiddleware, getAllName);
-router.get('/getProjectName', authMiddleware, getProjectName);
-router.get('/getAllNameBasedonRole', authMiddleware, getAllNameBasedonRole);
+router.post('/approval', authMiddleware, Approval);
+router.get('/getAllAttachment', authMiddleware, getAllAttachment);
+router.post('/submitPayment', authMiddleware, submitPayment);
+router.get('/approvalLogs', authMiddleware, approvalLogList);
 
 export default router;

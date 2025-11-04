@@ -350,4 +350,27 @@ const getProjectName = async (req: Request, res: Response) => {
     }
 }
 
-export { List, Store, Edit, GetData, Delete, UniqueCheck, ExistUniqueCheck, getAllName, getProjectName };
+const getAllNameBasedonRole = async (req: Request, res: Response) => {
+
+    try {
+        const { user_role, user_id } = req.query;
+        const searchCondition: any = { status: 1, trash: "NO" };
+
+        if (user_role === "3" && user_id) {
+            searchCondition.created_by = user_id;
+        }
+
+        const listData = await Projects.find(searchCondition);
+
+        const result = listData.map((data) => (
+            { value: data._id, label: data.title }
+        ))
+
+        res.json({ data: result });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err });
+    }
+}
+
+export { List, Store, Edit, GetData, Delete, UniqueCheck, ExistUniqueCheck, getAllName, getProjectName, getAllNameBasedonRole };

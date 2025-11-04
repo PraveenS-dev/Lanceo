@@ -78,9 +78,9 @@ export const getLeftMenuListData = async (data: LeftMenuListtData) => {
     }
 }
 
-export const getLeftMenuAllData = async () => {
+export const getLeftMenuAllData = async (user_role: number) => {
     try {
-        const res = await apiClient.get('/LeftMenu/getAllData');
+        const res = await apiClient.get('/LeftMenu/getAllData', { params: { user_role } });
         return res;
     } catch (err: any) {
         throw err;

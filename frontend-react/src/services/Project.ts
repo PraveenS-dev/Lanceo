@@ -117,3 +117,12 @@ export const getAllProjectName = async () => {
         throw err;
     }
 }
+
+export const getAllNameBasedonRole = async (user_role: number, user_id: string) => {
+    try {
+        const res = await apiClient.get('/projects/getAllNameBasedonRole', { params: { user_role, user_id } });
+        return res.data.data;
+    } catch (err: any) {
+        throw err;
+    }
+}

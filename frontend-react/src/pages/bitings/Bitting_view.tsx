@@ -20,7 +20,7 @@ type FormInputs = {
 }
 
 const Bitting_view = () => {
-    const { project_id } = useParams<({ project_id: string })>();
+    const { project_id, bitted_by } = useParams<({ project_id: string, bitted_by: string })>();
     const { user } = useAuth();
     const [editData, setEditData] = useState<any>(null);
     const [projectData, setProjectData] = useState<any>(null);
@@ -98,12 +98,12 @@ const Bitting_view = () => {
     ];
 
     const fetchData = async () => {
-        const res = await getBittingData(project_id as string, userId);
+        const res = await getBittingData(project_id, bitted_by);
         setEditData(res);
     };
 
     const fetchLastBitData = async () => {
-        const res = await getLastBittingData(project_id);
+        const res = await getLastBittingData(project_id, bitted_by);
         setLastBitData(res);
 
     };
@@ -126,9 +126,11 @@ const Bitting_view = () => {
 
             const formData = new FormData();
 
+            const action = actionStatus === 1 ? 2 : 3;
+
             formData.append("bitting_id", String(data?.bitting_id));
             formData.append("reason", String(data?.reason));
-            formData.append("action", String(actionStatus));
+            formData.append("action", String(action));
 
             await bittingApproval(formData as any);
 
@@ -195,7 +197,7 @@ const Bitting_view = () => {
                                     Created: {displayDateTimeFormat(bitting?.created_at)}
                                 </div>
                             </div>
-                            {bitting?.bitting_status == 1 && (
+                            {bitting?.bitting_status == 1 && (projectData?.created_by == user?.id || user?.role == 1) &&(
                                 <form onSubmit={handleSubmit(onSubmit)} className='px-3'>
 
                                     <div className='grid grid-cols-1 gap-4 mt-3'>
@@ -211,10 +213,10 @@ const Bitting_view = () => {
                                             <textarea id="reason" className='form-control' rows={8}
                                                 {...register("reason",
                                                     {
-                                                        required: "reason is required!",
+                                                        required: "Reason is required!",
                                                         minLength: {
                                                             value: 2,
-                                                            message: "reason must be minimum 2 characters length!"
+                                                            message: "Reason must be minimum 2 characters length!"
                                                         }
                                                     })}></textarea>
 
