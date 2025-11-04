@@ -60,7 +60,8 @@ const Store = async (req: any, res: Response) => {
             if (emails.length) {
                 const html = loadEmailTemplate("Mail_template", {
                     name,
-                    module:"leftmenu",
+                    module: "leftmenu",
+                    title: "",
                     subject: "New LeftMenu has been created",
                     action: "created",
                     created_by: createdByName,
@@ -127,7 +128,8 @@ const Edit = async (req: any, res: Response) => {
             if (emails.length) {
                 const html = loadEmailTemplate("Mail_template", {
                     name,
-                    module:"leftmenu",
+                    module: "leftmenu",
+                    title: "",
                     subject: "LeftMenu has been updated",
                     action: "updated",
                     created_by: createdByName,
@@ -237,13 +239,22 @@ const getAllData = async (req: Request, res: Response) => {
 
     try {
 
+        const { user_role } = req.query;
+
         const searchCondition: any = { status: 1, trash: "NO" };
 
         const listData = await LeftMenu.find(searchCondition);
 
-        const total = await LeftMenu.countDocuments(searchCondition);
-
-        res.json({ data: listData });
+        let finalList:any[] = [];
+        listData.map(
+            (data:any) => {
+                let role = data.role.split(",");
+                if (role.includes(String(user_role))) {
+                    finalList.push(data);
+                }
+            }
+        )
+        res.json({ data: finalList });
 
     } catch (err: any) {
         return res.status(500).json({ message: err });

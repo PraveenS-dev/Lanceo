@@ -10,6 +10,8 @@ type BittingListtData = {
     budget: string | null,
     message: string | null,
     user_id: string | null,
+    created_by: string | null,
+    user_role: string | null,
 }
 
 type ApprovalData = {
@@ -45,18 +47,18 @@ export const deleteItem = async (id: string) => {
     }
 }
 
-export const getBittingData = async (project_id: string, user_id: string | undefined) => {
+export const getBittingData = async (project_id: string | undefined, bitted_by: string | undefined) => {
     try {
-        const res = await apiClient.get('/bittings/getData', { params: { project_id, user_id } });
+        const res = await apiClient.get('/bittings/getData', { params: { project_id, bitted_by } });
         return res.data.data;
     } catch (err: any) {
         throw err;
     }
 }
 
-export const getLastBittingData = async (id: string | undefined) => {
+export const getLastBittingData = async (id: string | undefined, bitted_by: string | undefined) => {
     try {
-        const res = await apiClient.get('/bittings/getLastData', { params: { id } });
+        const res = await apiClient.get('/bittings/getLastData', { params: { id, bitted_by } });
         return res.data.data;
     } catch (err: any) {
         throw err;
@@ -65,16 +67,17 @@ export const getLastBittingData = async (id: string | undefined) => {
 
 export const bittingApproval = async (data: ApprovalData) => {
     try {
-        const res = await apiClient.post('/bittings/approval',  data );
+        const res = await apiClient.post('/bittings/approval', data);
         return res;
     } catch (err: any) {
         throw err;
     }
 }
 
-export const getLastBitting = async (id: string | undefined) => {
+export const getLastBitting = async (id: string | undefined, bitted_by: string | undefined) => {
     try {
-        const res = await apiClient.get('/bittings/getLastData', { params: { id } });
+        const res = await apiClient.get('/bittings/getLastData', { params: { id, bitted_by } });
+        
         if (res.data.data) {
             return false;
         }

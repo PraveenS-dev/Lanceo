@@ -32,7 +32,7 @@ const View = () => {
   const [chatUser, setChatUser] = useState<any>(null);
   const [isStartingChat, setIsStartingChat] = useState(false);
   const [chatDebug, setChatDebug] = useState<any>({ lastEvent: null, status: null, body: null, error: null });
-  const [lastBitData, setLastBitData] = useState<boolean>(true);
+  const [lastBitData, setLastBitData] = useState<any>(null);
 
   const userId = user?.id;
 
@@ -99,7 +99,9 @@ const View = () => {
   ];
 
   const fetchLastBitData = async () => {
-    const res = await getLastBitting(id);
+    const res = await getLastBitting(id, user?.id);
+    console.log(res);
+    
     setLastBitData(res);
   };
 
@@ -356,7 +358,7 @@ const View = () => {
             <div className="w-full md:w-96 max-w-[90vw] md:rounded-xl bg-white dark:bg-zinc-900 shadow-lg md:shadow-lg md:static rounded-t-xl md:rounded-t-none overflow-auto md:overflow-visible custom-scrollbar">
               <Bitting_add
                 setBittingVisible={setBittingVisible}
-                project_id={project_id as string}
+                project_id={editData?._id as string}
                 fetchLastBitData={fetchLastBitData}
               />
             </div>

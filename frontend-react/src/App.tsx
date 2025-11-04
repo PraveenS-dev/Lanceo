@@ -20,6 +20,9 @@ import LeftMenuEdit from './pages/admin/LeftMenu/LeftMenuEdit'
 import LeftMenuView from './pages/admin/LeftMenu/LeftMenuView'
 import Bitting_list from './pages/bitings/Bitting_list'
 import Bitting_view from './pages/bitings/Bitting_view'
+import Contract_list from './pages/contract/Contract_list'
+import Contract_view from './pages/contract/Contract_view'
+import Payment from './pages/contract/Payment'
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -94,9 +97,26 @@ function App() {
             <Mainlayout pageUrl="/bittings/list" pageName="Bittings List"><Bitting_list /></Mainlayout>
           </ProtectedRoute>
         } />
-        <Route path='/bittings/view/:project_id' element={
+        <Route path='/bittings/view/:project_id/:bitted_by' element={
           <ProtectedRoute>
             <Mainlayout pageUrl="/bittings/list" pageName="Bittings View"><Bitting_view /></Mainlayout>
+          </ProtectedRoute>
+        } />
+
+        {/* Bitting Routes */}
+        <Route path='/contracts/list' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/contracts/list" pageName="Contract List"><Contract_list /></Mainlayout>
+          </ProtectedRoute>
+        } />
+        <Route path='/contracts/view/:contract_id' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/contracts/list" pageName="Contract View"><Contract_view /></Mainlayout>
+          </ProtectedRoute>
+        } />
+        <Route path='/payment/:contract_id' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/contracts/list" pageName="Payment portal"><Payment /></Mainlayout>
           </ProtectedRoute>
         } />
 

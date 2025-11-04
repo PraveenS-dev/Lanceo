@@ -12,6 +12,7 @@ type ChatWindowProps = {
 
 export default function ChatWindow({ chat, userId, onClose, userName }: ChatWindowProps) {
     const [messages, setMessages] = useState<any[]>([]);
+    const [showDebug, setShowDebug] = useState(false);
     const messageEndRef = useRef<HTMLDivElement | null>(null);
     const { user } = useAuth();
     const senderName = userName ?? user?.name ?? (() => {
@@ -32,63 +33,126 @@ export default function ChatWindow({ chat, userId, onClose, userName }: ChatWind
     useEffect(() => {
         if (!chat?.userId || !userId) return;
 
-        (async () => {
-            try {
-                // Safely join room
-                socket.emit("join_user", userId);
+        let mounted = true;
 
-                // mark messages as read for this conversation on the server
+        // initialize: join room, mark as read, fetch history
+        const init = async () => {
+            try {
+                socket.emit("join_user", userId);
                 socket.emit("mark_as_read", { senderId: chat.userId, receiverId: userId });
 
-                // Fetch old messages via API (use VITE_NODE_BASE_URL to ensure correct origin)
                 const base = import.meta.env.VITE_NODE_BASE_URL || "";
                 const res = await fetch(`${base}/messages/${encodeURIComponent(userId)}/${encodeURIComponent(chat.userId)}`);
+                if (!mounted) return;
                 if (res.ok) {
                     const data = await res.json();
-                    setMessages(Array.isArray(data) ? data : []);
+                    // Normalize ids and timestamps so comparisons work (ObjectId -> string)
+                    const norm = (Array.isArray(data) ? data : []).map((m: any) => ({
+                        ...m,
+                        senderId: String(m.senderId),
+                        receiverId: String(m.receiverId),
+                        createdAt: m.createdAt || m.created_at || new Date().toISOString(),
+                        _id: m._id ? String(m._id) : m._id,
+                    }));
+                    // Sort by createdAt just in case server order differs
+                    norm.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                    console.debug("[ChatWindow] loaded messages:", norm.map((x: any) => ({ _id: x._id, senderId: x.senderId, createdAt: x.createdAt })));
+                    setMessages(norm);
                 } else {
                     console.warn("Failed to fetch messages, status:", res.status);
                     setMessages([]);
                 }
-
-                const handler = (msg: any) => {
-                    try {
-                        if (
-                            (msg.senderId === chat.userId && msg.receiverId === userId) ||
-                            (msg.senderId === userId && msg.receiverId === chat.userId)
-                        ) {
-                            setMessages((prev) => [...prev, msg]);
-                        }
-                    } catch (e) {
-                        console.error("Error handling incoming message:", e);
-                    }
-                };
-
-                const onMessagesRead = (readerId: string) => {
-                    try {
-                        if (readerId === chat.userId) {
-                            setMessages((prev) => prev.map((m) => (m.senderId === userId && m.receiverId === chat.userId ? { ...m, isRead: true } : m)));
-                        }
-                    } catch (e) {
-                        console.error("Error handling messages_read:", e);
-                    }
-                };
-
-                // Listen for new messages (incoming and confirmation for sent messages)
-                socket.on("receive_message", handler);
-                socket.on("message_sent", handler);
-                socket.on("messages_read", onMessagesRead);
-
-                // cleanup
-                return () => {
-                    socket.off("receive_message", handler);
-                    socket.off("message_sent", handler);
-                    socket.off("messages_read", onMessagesRead);
-                };
             } catch (err) {
                 console.error("ChatWindow initialization error:", err);
+                if (mounted) setMessages([]);
             }
-        })();
+        };
+
+        init();
+
+    const handler = (msg: any) => {
+            try {
+                // normalize incoming ids to strings
+                const senderIdRaw = msg.senderId ?? msg.sender ?? msg.from;
+                const receiverIdRaw = msg.receiverId ?? msg.receiver ?? msg.to;
+                const senderId = senderIdRaw ? String(senderIdRaw) : undefined;
+                const receiverId = receiverIdRaw ? String(receiverIdRaw) : undefined;
+
+                // ensure message belongs to this conversation
+                if (
+                    (senderId === String(chat.userId) && receiverId === String(userId)) ||
+                    (senderId === String(userId) && receiverId === String(chat.userId))
+                ) {
+                    const normalizedMsg = {
+                        ...msg,
+                        senderId,
+                        receiverId,
+                        createdAt: msg.createdAt || msg.created_at || new Date().toISOString(),
+                        _id: msg._id ? String(msg._id) : msg._id,
+                    };
+
+                    console.debug("[ChatWindow] incoming message:", {
+                        _id: msg._id,
+                        senderId: normalizedMsg.senderId,
+                        receiverId: normalizedMsg.receiverId,
+                        message: normalizedMsg.message,
+                        createdAt: normalizedMsg.createdAt,
+                    });
+
+                    setMessages((prev) => {
+                        // If server gave us an _id for this message, try to replace any optimistic local copy.
+                        if (normalizedMsg._id) {
+                            const idx = prev.findIndex((m) =>
+                                typeof m._id === 'string' && m._id.startsWith('local_') &&
+                                m.message === normalizedMsg.message && String(m.senderId) === String(normalizedMsg.senderId) && String(m.receiverId) === String(normalizedMsg.receiverId) &&
+                                Math.abs(new Date(m.createdAt || m.created_at || Date.now()).getTime() - new Date(normalizedMsg.createdAt).getTime()) < 3000
+                            );
+                            if (idx !== -1) {
+                                const copy = [...prev];
+                                copy[idx] = normalizedMsg;
+                                console.debug("[ChatWindow] replaced optimistic message with server message", normalizedMsg._id);
+                                return copy;
+                            }
+                        }
+
+                        // simple dedupe: ignore if there's already a message with same id
+                        if (normalizedMsg._id && prev.some((m) => m._id === normalizedMsg._id)) return prev;
+
+                        // or ignore if same sender and same text exists very recently
+                        const recentDup = prev.some((m) =>
+                            m.message === normalizedMsg.message && String(m.senderId) === String(normalizedMsg.senderId) && String(m.receiverId) === String(normalizedMsg.receiverId) && Math.abs(new Date(m.createdAt || m.created_at || Date.now()).getTime() - new Date(normalizedMsg.createdAt).getTime()) < 3000
+                        );
+                        if (recentDup) return prev;
+
+                        console.debug("[ChatWindow] appending message", normalizedMsg._id);
+                        return [...prev, normalizedMsg];
+                    });
+                }
+            } catch (e) {
+                console.error("Error handling incoming message:", e);
+            }
+        };
+
+        const onMessagesRead = (readerId: string) => {
+            try {
+                if (readerId === chat.userId) {
+                    setMessages((prev) => prev.map((m) => (m.senderId === userId && m.receiverId === chat.userId ? { ...m, isRead: true } : m)));
+                }
+            } catch (e) {
+                console.error("Error handling messages_read:", e);
+            }
+        };
+
+        socket.on("receive_message", handler);
+        socket.on("message_sent", handler);
+        socket.on("messages_read", onMessagesRead);
+
+        return () => {
+            mounted = false;
+            socket.off("receive_message", handler);
+            socket.off("message_sent", handler);
+            socket.off("messages_read", onMessagesRead);
+        };
     }, [chat?.userId, userId]);
 
     useEffect(() => {
@@ -111,13 +175,35 @@ export default function ChatWindow({ chat, userId, onClose, userName }: ChatWind
     };
 
     const handleSend = (text: string) => {
-        const msg: any = { senderId: userId, receiverId: chat.userId, message: text };
+        const msg: any = { senderId: String(userId), receiverId: String(chat.userId), message: text };
         if (senderName) msg.userName = senderName;
+
+        // Optimistically append the message so it appears immediately in the UI
+        const optimistic = { ...msg, createdAt: new Date().toISOString(), _id: `local_${Date.now()}`, isRead: true };
+        setMessages((prev) => [...prev, optimistic]);
+
         socket.emit("private_message", msg);
     };
 
     return (
         <div className="w-full max-h-[70vh] md:h-auto bg-white dark:bg-zinc-900 rounded-xl shadow-lg flex flex-col">
+            {/* Debug toggle + diagnostics (temporary) */}
+            {/* <div className="px-3 pt-3">
+                <button onClick={() => setShowDebug((s) => !s)} className="text-xs text-zinc-500 hover:text-zinc-700">{showDebug ? 'Hide' : 'Show'} chat debug</button>
+                {showDebug && (
+                    <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded-md text-xs text-zinc-700 dark:text-zinc-200">
+                        <div><strong>Loaded messages:</strong> {messages.length}</div>
+                        <div className="mt-1">
+                            {messages.slice(-10).map((m:any) => (
+                                <div key={m._id || `${m.senderId}_${m.createdAt}`} className="truncate">
+                                    <div className="font-mono text-[10px]">{m._id} • {String(m.senderId)} • {new Date(m.createdAt).toLocaleString()}</div>
+                                    <div className="mt-0.5 text-[12px] text-zinc-800 dark:text-zinc-200">{String(m.message)}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div> */}
             <div className="flex items-center gap-3 p-2 border-b dark:border-zinc-700">
                 <button onClick={onClose} className="text-xl px-2 dark:text-white">←</button>
                 <p className="font-semibold dark:text-white">{chat.name}</p>
@@ -148,7 +234,7 @@ export default function ChatWindow({ chat, userId, onClose, userName }: ChatWind
 
                         <div className="space-y-3">
                             {group.items.map((m: any) => {
-                                const isMe = m.senderId === userId;
+                                const isMe = String(m.senderId) === String(userId);
                                 return (
                                     <div key={m._id || `${m.senderId}_${m.receiverId}_${m.createdAt}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                         <div className={`p-2 rounded-lg max-w-[70%] ${isMe ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-zinc-700 text-black dark:text-white'}`}>

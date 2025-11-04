@@ -18,6 +18,7 @@ import MessageRoutes from "./routes/MessageRoutes";
 import ChatList from "./model/chats/ChatList";
 import ChatlistRoutes from "./routes/ChatlistRoutes";
 import BittingRoutes from "./routes/BittingRoutes";
+import ContractRoutes from "./routes/ContractorRoutes";
 import { sendNotification } from "./controller/Admin/NotificationController";
 
 connectDB();
@@ -43,8 +44,14 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+const contractUploadsDir = path.resolve(__dirname, "./uploads/contracts");
+if (!fs.existsSync(contractUploadsDir)) {
+  fs.mkdirSync(contractUploadsDir, { recursive: true });
+}
+
 // Static files
 app.use("/api/uploads/projects", express.static(uploadsDir));
+app.use("/api/uploads/contracts", express.static(contractUploadsDir));
 
 // Routes
 app.use("/api", userRoutes);
@@ -54,6 +61,7 @@ app.use("/api/LeftMenu", LeftMenuRoutes)
 app.use("/api/messages", MessageRoutes);
 app.use("/api/chatlist", ChatlistRoutes);
 app.use("/api/bittings", BittingRoutes);
+app.use("/api/contracts", ContractRoutes);
 
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);
@@ -114,7 +122,6 @@ io.on("connection", (socket) => {
       console.error("Error in private_message handler:", err);
     }
   });
-
 
   // Mark message as read
   socket.on("mark_as_read", async ({ senderId, receiverId }) => {

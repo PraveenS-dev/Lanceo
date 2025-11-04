@@ -20,6 +20,7 @@ const getIcon = (iconName?: string) => {
   return IconComponent ? <IconComponent /> : null;
 };
 
+
 // Build tree from flat menu
 const buildMenuTree = (items: any[]) => {
   const map: Record<string, any> = {};
@@ -42,13 +43,15 @@ const Leftmenu: React.FC<LeftmenuProps> = ({ activePath, show = true, hideMenu }
   const [openParents, setOpenParents] = useState<string[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [menuTree, setMenuTree] = useState<any[]>([]);
+  const { user } = useAuth();
+
   useAuth();
 
   // Fetch menu
   useEffect(() => {
     const fetchLeftmenuData = async () => {
       try {
-        const res = await getLeftMenuAllData();
+        const res = await getLeftMenuAllData(user?.role);
         if (res?.data?.data) {
           const formattedMenus = res.data.data.map((item: any) => ({
             id: item._id,

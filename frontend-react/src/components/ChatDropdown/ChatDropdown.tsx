@@ -148,48 +148,51 @@ export default function ChatDropdown({ userId }: { userId?: string }) {
                         sm:w-80 sm:max-w-none
                     "
                 >
-                    <div className="flex items-center justify-between px-3 py-2 border-b dark:border-zinc-800">
-                        <h4 className="font-semibold dark:text-white">Messages</h4>
-                        <button onClick={() => setIsOpen(false)} className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-white">Close</button>
-                    </div>
-
-                    <div className="max-h-80 overflow-y-auto">
-                        {recentChats.length === 0 && (
-                            <div className="p-4 text-center text-sm text-zinc-500">No conversations yet</div>
-                        )}
-
-                                    {recentChats.map((chat) => (
-                                        <div
-                                            key={chat.contactId}
-                                            onClick={() => {
-                                                if (!chat?.contactId) return;
-                                                setSelectedChat(chat);
-                                            }}
-                                            className="p-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer flex items-start gap-3"
-                                        >
-                                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 text-white font-semibold">
-                                    {chat.contactName?.split(" ").map((s) => s[0]).slice(0, 2).join("") || "U"}
-                                </div>
-
-                                <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                        <p className="font-semibold text-sm dark:text-white">{chat.contactName}</p>
-                                        <span className="text-xs text-zinc-400">
-                                            {chat.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-zinc-500 truncate mt-1">{chat.lastMessage}</p>
-                                </div>
-
-                                {chat.unreadCount && chat.unreadCount > 0 && (
-                                    <span className="ml-2 bg-red-500 text-white text-xs px-2 rounded-full h-fit">{chat.unreadCount}</span>
-                                )}
+                    {/* When a chat is selected, show only the ChatWindow. Otherwise show the list */}
+                    {!selectedChat ? (
+                        <>
+                            <div className="flex items-center justify-between px-3 py-2 border-b dark:border-zinc-800">
+                                <h4 className="font-semibold dark:text-white">Messages</h4>
+                                <button onClick={() => setIsOpen(false)} className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-white">Close</button>
                             </div>
-                        ))}
-                    </div>
 
-                    {selectedChat && (
-                        <div className="mt-2">
+                            <div className="max-h-80 overflow-y-auto">
+                                {recentChats.length === 0 && (
+                                    <div className="p-4 text-center text-sm text-zinc-500">No conversations yet</div>
+                                )}
+
+                                {recentChats.map((chat) => (
+                                    <div
+                                        key={chat.contactId}
+                                        onClick={() => {
+                                            if (!chat?.contactId) return;
+                                            setSelectedChat(chat);
+                                        }}
+                                        className="p-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer flex items-start gap-3"
+                                    >
+                                        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-red-500 text-white font-semibold">
+                                            {chat.contactName?.split(" ").map((s) => s[0]).slice(0, 2).join("") || "U"}
+                                        </div>
+
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between">
+                                                <p className="font-semibold text-sm dark:text-white">{chat.contactName}</p>
+                                                <span className="text-xs text-zinc-400">
+                                                    {chat.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-zinc-500 truncate mt-1">{chat.lastMessage}</p>
+                                        </div>
+
+                                        {chat.unreadCount && chat.unreadCount > 0 && (
+                                            <span className="ml-2 bg-red-500 text-white text-xs px-2 rounded-full h-fit">{chat.unreadCount}</span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="p-3">
                             <ChatWindow
                                 chat={{ userId: selectedChat.contactId, name: selectedChat.contactName }}
                                 userId={userId || ""}

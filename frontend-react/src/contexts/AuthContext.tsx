@@ -55,6 +55,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    // useEffect(() => {
+    //     const initializeAuth = async () => {
+    //         const token = localStorage.getItem('token');
+    //         const storedUser = localStorage.getItem('user');
+
+    //         if (token && storedUser) {
+    //             try {
+    //                 const userData = JSON.parse(storedUser);
+    //                 setUser(userData);
+
+    //                 // Verify token is still valid by fetching current user
+    //                 await refreshUser();
+    //             } catch (err) {
+    //                 console.error('Error initializing auth:', err);
+    //                 logout();
+    //             }
+    //         } else {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     initializeAuth();
+    // }, []);
+
     useEffect(() => {
         const initializeAuth = async () => {
             const token = localStorage.getItem('token');
@@ -62,11 +86,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             if (token && storedUser) {
                 try {
-                    const userData = JSON.parse(storedUser);
-                    setUser(userData);
-
-                    // Verify token is still valid by fetching current user
-                    await refreshUser();
+                    // 🧠 Don't set user here immediately
+                    await refreshUser(); // this will set the real user
                 } catch (err) {
                     console.error('Error initializing auth:', err);
                     logout();
@@ -78,6 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         initializeAuth();
     }, []);
+
 
     const value: AuthContextType = {
         user,

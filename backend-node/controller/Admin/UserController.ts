@@ -60,7 +60,7 @@ const Login = async (req: Request, res: Response) => {
 
         res.json({
             token,
-            user: { id: existUser._id, name: existUser.name, email: existUser.email }
+            user: { id: existUser._id, name: existUser.name, email: existUser.email, role: existUser.role }
         });
     }
     catch (err) {

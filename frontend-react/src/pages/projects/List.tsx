@@ -163,7 +163,9 @@ const List = () => {
       <div className='flex justify-between mt-3 p-3 bg-red-300 dark:bg-red-600/30 rounded-sm'>
         <h3 className='text-2xl font-bold'>Project List</h3>
         <div className='px-3 flex'>
-          <Add_btn url={"/projects/add"} />
+          {user?.role != 2 &&
+            <Add_btn url={"/projects/add"} />
+          } 
           <FilterBtn showFilter={showFilter} setShowFilter={setShowFilter} />
         </div>
       </div>

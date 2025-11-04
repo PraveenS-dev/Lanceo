@@ -10,21 +10,21 @@ import "flatpickr/dist/flatpickr.min.css";
 import Search_btn from '../../components/Buttons/Search_btn';
 import Reset_btn from '../../components/Buttons/Reset_btn';
 import FilterBtn from '../../components/Buttons/Filter_btn';
-import {  getBittingListData } from '../../services/Bittings';
-import { getAllNameBasedonRole } from '../../services/Project';
-import { displayDateTimeFormat, getThreeStatus } from '../../services/Helpers';
-import { useUserName } from '../../utils/useUserName';
+import Swal from 'sweetalert2';
+import { getAllProjectName } from '../../services/Project';
+import { displayDateTimeFormat, getContractStatus, getThreeStatus } from '../../services/Helpers';
+import { deleteItem, getContractListData } from '../../services/Contract';
 
 type FormInputs = {
   project_id: string | null,
-  created_by: string | null,
+  user_id: string | null,
 }
 
-const Bitting_list = () => {
+const Contract_list = () => {
   const { register, control, handleSubmit, reset, formState: { isSubmitting } } = useForm<FormInputs>({
     defaultValues: {
       project_id: null,
-      created_by: null,
+      user_id: null,
     },
   });
 
@@ -34,32 +34,59 @@ const Bitting_list = () => {
   const [listData, setListData] = useState<any>(null);
   const [showFilter, setShowFilter] = useState(false);
   const [projects, setProjects] = useState<any>(null);
-  const [lastData, setLastData] = useState<any>(null);
 
   useEffect(() => {
-    if (user) {
-      handleSubmit(onSubmit)();  // only run when user is available
-    }
-  }, [page, user]);
+    handleSubmit(onSubmit)();
 
+  }, [page]);
+
+  const deleteListItem = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteItem(id); // your delete function
+        await handleSubmit(onSubmit)(); // refresh or re-fetch list
+
+        Swal.fire({
+          title: "Deleted!",
+          text: "Item has been deleted.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } catch (err) {
+        Swal.fire({
+          title: "Error!",
+          text: "Something went wrong.",
+          icon: "error",
+        });
+      }
+    }
+  };
 
   const crumbs = [
     { label: "Home", path: "/dashboard" },
-    { label: "Bittings" },
+    { label: "Contracts" },
   ];
 
   useEffect(() => {
     const getProjects = async () => {
-      const res = await getAllNameBasedonRole(user?.role,user?.id);
+      const res = await getAllProjectName();
       setProjects(res);
     }
     getProjects();
   }, []);
 
-  const UserNameDisplay = ({ userId }: { userId: string }) => {
-    const name = useUserName(userId);
-    return <>{name || "Loading..."}</>;
-  };
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
@@ -70,12 +97,8 @@ const Bitting_list = () => {
       };
 
       if (data.project_id !== undefined) params.project_id = data.project_id;
-      if (data.created_by !== undefined) params.created_by = data.created_by;
 
-console.log(data.project_id);
-
-      const res = await getBittingListData(params);
-
+      const res = await getContractListData(params);
       setListData(res.data);
     } catch (err: any) {
       ShowToast(err.response?.data?.message || "Something went wrong", "error");
@@ -93,7 +116,7 @@ console.log(data.project_id);
       <BrudCrumbs crumbs={crumbs} />
 
       <div className='flex justify-between mt-3 p-3 bg-red-300 dark:bg-red-600/30 rounded-sm'>
-        <h3 className='text-2xl font-bold'>Bitting List</h3>
+        <h3 className='text-2xl font-bold'>Contract List</h3>
         <div className='px-3 flex'>
           <FilterBtn showFilter={showFilter} setShowFilter={setShowFilter} />
         </div>
@@ -139,35 +162,68 @@ console.log(data.project_id);
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 px-3">
-        {listData?.data?.map((bitting: any) => (
+      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 mt-6 px-3">
+        {listData?.data?.map((contract: any) => (
           <div
-            key={bitting._id}
-            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-            onClick={() => { navigate(`/bittings/view/${bitting?.project_id?._id}/${bitting?.created_by}`) }}
+            key={contract._id}
+            className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 hover:shadow-md transition-shadow duration-300 cursor-pointer dark:shadow-red-800/30"
+            onClick={() => { navigate(`/contracts/view/${contract?._id}`) }}
           >
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
-              {bitting?.project_id?.title || "No Project Name"}
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-5 flex items-center justify-between">
+              <span>{contract?.project_id?.title || "No Project Name"}</span>
             </h3>
 
-            <div className="grid grid-cols-1 gap-2">
-              <div className="text-gray-600 dark:text-gray-400 text-sm">
-                <span className="font-medium">Last Bit Date: </span>
-                {displayDateTimeFormat(bitting?.created_at)}
-              </div>
-              <div className="text-gray-600 dark:text-gray-400 text-sm">
-                <span className="font-medium">Bitting by: </span>
-                <UserNameDisplay userId={bitting?.created_by} />
+            {/* Info Section */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 text-sm">
+              <div className="flex flex-col space-y-1">
+                <span className="font-medium text-gray-700 dark:text-gray-300">Start Date</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  {displayDateTimeFormat(contract?.created_at)}
+                </span>
               </div>
 
-              <div className="text-sm">
-                <span className="font-medium">Last Status: </span>
-                {getThreeStatus(bitting?.bitting_status)}
+              <div className="flex flex-col space-y-1">
+                <span className="font-medium text-gray-700 dark:text-gray-300">Target Date</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  {displayDateTimeFormat(contract?.project_id?.deadline)}
+                </span>
               </div>
+
+              <div className="flex flex-col space-y-1">
+                <span className="font-medium text-gray-700 dark:text-gray-300">Payment Completion</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  {contract?.payed_percentage}
+                </span>
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <span className="font-medium text-gray-700 dark:text-gray-300">Project Completion</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  {contract?.completion_percentage}
+                </span>
+              </div>
+            </div>
+
+            {/* Status Badge */}
+            <div className="mt-6 flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
+              <div>{getContractStatus(contract?.contract_status)}</div>
             </div>
           </div>
         ))}
       </div>
+
+
+      {(!listData?.data || listData?.data.length === 0) && (
+        <div className='flex justify-center'>
+          <p className="text-gray-500 text-center py-10 text-lg font-medium rounded-lg">
+            🚫 No Data Found
+          </p>
+        </div>
+      )}
+
+
 
 
       <div className='flex justify-center mt-6 gap-2'>
@@ -188,4 +244,4 @@ console.log(data.project_id);
 }
 
 
-export default Bitting_list
+export default Contract_list
