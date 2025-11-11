@@ -12,6 +12,7 @@ type paymentData = {
     percentage: number,
     amount: string,
     contract_id: string,
+    user_id: string,
 }
 
 type ContractListData = {

@@ -23,6 +23,10 @@ import Bitting_view from './pages/bitings/Bitting_view'
 import Contract_list from './pages/contract/Contract_list'
 import Contract_view from './pages/contract/Contract_view'
 import Payment from './pages/contract/Payment'
+import Transaction_list from './pages/transactions/Transaction_list'
+import Transaction_view from './pages/transactions/Transaction_view'
+import Ticket_list from './pages/tickets/Ticket_list'
+import Ticket_view from './pages/tickets/Ticket_view'
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -117,6 +121,30 @@ function App() {
         <Route path='/payment/:contract_id' element={
           <ProtectedRoute>
             <Mainlayout pageUrl="/contracts/list" pageName="Payment portal"><Payment /></Mainlayout>
+          </ProtectedRoute>
+        } />
+
+        {/* Transaction Routes */}
+        <Route path='/transactions/list' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/transactions/list" pageName="Transactions List"><Transaction_list /></Mainlayout>
+          </ProtectedRoute>
+        } />
+        <Route path='/transactions/view/:transaction_id' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/transactions/list" pageName="Transactions View"><Transaction_view /></Mainlayout>
+          </ProtectedRoute>
+        } />
+
+        {/* Tickets Routes */}
+        <Route path='/tickets/list' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/tickets/list" pageName="Tickets List"><Ticket_list /></Mainlayout>
+          </ProtectedRoute>
+        } />
+        <Route path='/tickets/view/:ticket_id' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/tickets/list" pageName="Tickets View"><Ticket_view /></Mainlayout>
           </ProtectedRoute>
         } />
 
