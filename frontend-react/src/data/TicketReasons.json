@@ -1,0 +1,38 @@
+[
+  {
+    "value": 1,
+    "label": "Delivery Delay"
+  },
+  {
+    "value": 2,
+    "label": "Payment Delay"
+  },
+  {
+    "value": 3,
+    "label": "Work Not Satisfied"
+  },
+  {
+    "value": 4,
+    "label": "Incorrect Invoice"
+  },
+  {
+    "value": 5,
+    "label": "Project Issue"
+  },
+  {
+    "value": 6,
+    "label": "Refund Request"
+  },
+  {
+    "value": 7,
+    "label": "Technical Issue"
+  },
+  {
+    "value": 8,
+    "label": "Communication Issue"
+  },
+  {
+    "value": 9,
+    "label": "Other"
+  }
+]

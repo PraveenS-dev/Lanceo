@@ -20,6 +20,10 @@ import ChatlistRoutes from "./routes/ChatlistRoutes";
 import BittingRoutes from "./routes/BittingRoutes";
 import ContractRoutes from "./routes/ContractorRoutes";
 import { sendNotification } from "./controller/Admin/NotificationController";
+import TransactionRoutes from "./routes/TransactionRoutes";
+import TicketsRoutes from "./routes/TicketsRoutes";
+// Start cron jobs (side-effect import)
+import "./controller/Admin/CronController";
 
 connectDB();
 
@@ -62,6 +66,8 @@ app.use("/api/messages", MessageRoutes);
 app.use("/api/chatlist", ChatlistRoutes);
 app.use("/api/bittings", BittingRoutes);
 app.use("/api/contracts", ContractRoutes);
+app.use("/api/transactions", TransactionRoutes);
+app.use("/api/tickets", TicketsRoutes);
 
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);

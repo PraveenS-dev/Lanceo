@@ -11,7 +11,28 @@ import ContractAttachments from "../model/ContractAttachments";
 import Transaction from "../model/Transaction";
 import mongoose from "mongoose";
 import ContractApprovalLog from "../model/ContractApprovalLog";
+import Razorpay from "razorpay";
+import crypto from "crypto";
+import axios from "axios";
 
+// ✅ Razorpay (for order/payments) — still can keep this if needed
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID!,
+    key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
+
+// ✅ RazorpayX Base Setup (for payouts)
+const razorpayAuth = {
+    username: process.env.RAZORPAY_KEY_ID!,
+    password: process.env.RAZORPAY_KEY_SECRET!,
+};
+const RAZORPAY_BASE_URL = process.env.RAZORPAY_BASE_URL || "https://api.razorpay.com";
+// const ENABLE_PAYOUTS = String(process.env.ENABLE_PAYOUTS || "true").toLowerCase() === "true";
+const ENABLE_PAYOUTS = false;
+
+
+// RazorpayX Base URL (correct one for payouts)
+const RAZORPAY_X_URL = "https://api.razorpayx.com";
 
 const List = async (req: Request, res: Response) => {
     try {
@@ -42,7 +63,6 @@ const List = async (req: Request, res: Response) => {
             totalPages: Math.ceil(total / limit),
             currentPage,
             totalRecords: total,
-            res: req.query,
         });
     } catch (err: any) {
         return res.status(500).json({ message: err.message });
@@ -391,4 +411,307 @@ const submitPayment = async (req: Request, res: Response) => {
     }
 }
 
-export { List, GetData, Delete, Approval, AttachmentSubmittion, getAllAttachment, submitPayment };
+const releasePayment = async (req?: Request | null,res?: Response | null): Promise<void | Response> => {
+    const reply = (code: number, body: any) => {
+        if (res && typeof res.status === "function") {
+            return res.status(code).json(body);
+        }
+        if (code >= 400) console.error("releasePayment:", body);
+        else console.log("releasePayment:", body);
+        return;
+    };
+
+    try {
+        if (
+            !process.env.RAZORPAY_KEY_ID ||
+            !process.env.RAZORPAY_KEY_SECRET ||
+            !process.env.RAZORPAY_ACCOUNT_NO
+        ) {
+            return reply(500, {
+                message:
+                    "RazorpayX creds missing. Configure RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_ACCOUNT_NO.",
+            }) as any;
+        }
+
+        const contracts = await Contracts.find({
+            completion_percentage: 100,
+            form_status: 0,
+        });
+
+        if (!contracts.length) {
+            return reply(200, { message: "No contracts to release." }) as any;
+        }
+
+        const results: Array<{
+            contractId: string;
+            status: "success" | "skipped" | "failed";
+            reason?: string;
+            payoutId?: string;
+        }> = [];
+
+        await Promise.all(
+            contracts.map(async (data) => {
+                try {
+                    const amountInPaise = Math.round(Number(data?.budget || 0) * 100);
+                    if (!Number.isFinite(amountInPaise) || amountInPaise <= 0) {
+                        results.push({
+                            contractId: String(data?._id),
+                            status: "skipped",
+                            reason: "Invalid or zero budget",
+                        });
+                        return;
+                    }
+
+                    const freelancer = await User.findById(data?.freelancer);
+                    if (!freelancer) {
+                        results.push({
+                            contractId: String(data?._id),
+                            status: "skipped",
+                            reason: "Freelancer not found",
+                        });
+                        return;
+                    }
+
+                    // Skip actual payouts in test/staging
+                    if (!ENABLE_PAYOUTS) {
+                        try {
+                            const new_transaction = new Transaction({
+                                project_id: data.project_id,
+                                bitting_id: data.bitting_id,
+                                contract_id: data._id,
+                                amount: data.budget,
+                                payment_person: data.freelancer,
+                                payment_type: 2,
+                            });
+                            await new_transaction.save();
+                        } catch { }
+                        data.form_status = 1;
+                        await data.save();
+                        results.push({
+                            contractId: String(data?._id),
+                            status: "success",
+                            payoutId: "skipped-payouts",
+                        });
+                        return;
+                    }
+
+                    // 1️⃣ Create or ensure Razorpay contact exists
+                    let contactId: string | null = null;
+                    try {
+                        const contactRes = await axios.post(
+                            `${RAZORPAY_X_URL}/v1/contacts`,
+                            {
+                                name: freelancer.name || "Freelancer",
+                                email: freelancer.email || "test@example.com",
+                                type: "vendor",
+                                reference_id: String(freelancer._id),
+                            },
+                            { auth: razorpayAuth, timeout: 15000 }
+                        );
+                        contactId = contactRes.data?.id;
+                    } catch (e: any) {
+                        if (e?.response?.status === 409) {
+                            contactId =
+                                e?.response?.data?.error?.metadata?.contact_id || null;
+                        }
+                        if (!contactId) {
+                            const reason =
+                                e?.response?.data?.error?.description ||
+                                e?.message ||
+                                "Contact create failed";
+                            results.push({
+                                contractId: String(data?._id),
+                                status: "failed",
+                                reason: `contact:create - ${reason}`,
+                            });
+                            return;
+                        }
+                    }
+
+                    // 2️⃣ Create fund account (test handle UPI)
+                    let fundAccountId: string | null = null;
+                    try {
+                        const fundRes = await axios.post(
+                            `${RAZORPAY_X_URL}/v1/fund_accounts`,
+                            {
+                                contact_id: contactId,
+                                account_type: "vpa",
+                                vpa: { address: "success@razorpay" },
+                            },
+                            { auth: razorpayAuth, timeout: 15000 }
+                        );
+                        fundAccountId = fundRes.data?.id;
+                    } catch (e: any) {
+                        fundAccountId =
+                            e?.response?.data?.error?.metadata?.fund_account_id || null;
+                        if (!fundAccountId) {
+                            const reason =
+                                e?.response?.data?.error?.description ||
+                                e?.message ||
+                                "Fund account create failed";
+                            results.push({
+                                contractId: String(data?._id),
+                                status: "failed",
+                                reason: `fund:create - ${reason}`,
+                            });
+                            return;
+                        }
+                    }
+
+                    // 3️⃣ Create payout
+                    let payoutId = "";
+                    try {
+                        const payoutRes = await axios.post(
+                            `${RAZORPAY_X_URL}/v1/payouts`,
+                            {
+                                account_number: process.env.RAZORPAY_ACCOUNT_NO,
+                                fund_account_id: fundAccountId,
+                                amount: amountInPaise,
+                                currency: "INR",
+                                mode: "UPI",
+                                purpose: "payout",
+                                narration: `Auto payment for contract ${String(
+                                    data.project_id
+                                ).slice(0, 12)}`,
+                                queue_if_low_balance: true,
+                            },
+                            { auth: razorpayAuth, timeout: 20000 }
+                        );
+                        payoutId = payoutRes.data?.id;
+                    } catch (e: any) {
+                        const reason =
+                            e?.response?.data?.error?.description ||
+                            e?.message ||
+                            "Payout failed";
+                        const acct = String(process.env.RAZORPAY_ACCOUNT_NO || "");
+                        const acctMasked = acct
+                            ? `${acct.slice(0, 2)}***${acct.slice(-2)}`
+                            : "(unset)";
+                        results.push({
+                            contractId: String(data?._id),
+                            status: "failed",
+                            reason: `payout:create - ${reason} [base=${RAZORPAY_X_URL}, acct=${acctMasked}]`,
+                        });
+                        return;
+                    }
+
+                    // 4️⃣ Log transaction + update status
+                    try {
+                        const new_transaction = new Transaction({
+                            project_id: data.project_id,
+                            bitting_id: data.bitting_id,
+                            contract_id: data._id,
+                            amount: data.budget,
+                            payment_person: data.freelancer,
+                            payment_type: 2,
+                        });
+                        await new_transaction.save();
+                    } catch { }
+
+                    data.form_status = 1;
+                    await data.save();
+
+                    results.push({
+                        contractId: String(data?._id),
+                        status: "success",
+                        payoutId,
+                    });
+                } catch (innerErr: any) {
+                    const reason =
+                        innerErr?.response?.data?.error?.description ||
+                        innerErr?.message ||
+                        "Unknown error";
+                    results.push({
+                        contractId: String(data?._id),
+                        status: "failed",
+                        reason,
+                    });
+                }
+            })
+        );
+
+        return reply(200, { message: "Release run completed.", results }) as any;
+    } catch (err: any) {
+        console.error("❌ Release Payment Error:", err?.response?.data || err?.message);
+        return reply(500, {
+            message:
+                err?.response?.data?.error?.description ||
+                err?.message ||
+                "Payment release failed.",
+        }) as any;
+    }
+};
+
+
+const createOrder = async (req: Request, res: Response) => {
+    try {
+        if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+            return res.status(500).json({ message: "Razorpay keys are not configured on server." });
+        }
+
+        let { amount, currency, receipt, notes } = req.body as { amount: number | string; currency?: string; receipt?: string; notes?: any };
+
+        if (amount === undefined || amount === null) {
+            return res.status(400).json({ message: "amount is required" });
+        }
+
+        // Normalize to integer paise
+        let amountNumber = Number(amount);
+        if (!Number.isFinite(amountNumber)) {
+            return res.status(400).json({ message: "amount must be a number" });
+        }
+
+        // If client sent rupees (e.g., 123.45), convert to paise
+        // If client sent paise (e.g., 12345), keep as-is
+        // Heuristic: if amountNumber < 1000 and has decimals -> rupees, else assume paise
+        const looksLikeRupees = amountNumber < 1000 && String(amount).includes(".");
+        if (looksLikeRupees) {
+            amountNumber = Math.round(amountNumber * 100);
+        } else {
+            amountNumber = Math.round(amountNumber);
+        }
+
+        if (amountNumber < 100) {
+            return res.status(400).json({ message: "Minimum amount is ₹1.00" });
+        }
+
+        // Ensure receipt <= 40 chars; generate compact if missing
+        let finalReceipt = typeof receipt === "string" && receipt.trim() ? receipt.trim() : `rp_${Date.now().toString(36)}`;
+        if (finalReceipt.length > 40) finalReceipt = finalReceipt.slice(0, 40);
+
+        const options = {
+            amount: amountNumber,
+            currency: currency || "INR",
+            receipt: finalReceipt,
+            notes: notes || undefined,
+        } as any;
+
+        const order = await razorpay.orders.create(options);
+        return res.json(order);
+    } catch (err: any) {
+        return res.status(500).json({ message: err?.error?.description || err.message || "Failed to create order" });
+    }
+};
+
+// ✅ Verify payment after success
+const verifyPayment = async (req: Request, res: Response) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+            .update(sign)
+            .digest("hex");
+
+        if (razorpay_signature === expectedSign) {
+            return res.json({ message: "Payment verified successfully!" });
+        } else {
+            return res.status(400).json({ message: "Invalid signature" });
+        }
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+export { List, GetData, Delete, Approval, AttachmentSubmittion, getAllAttachment, submitPayment, releasePayment, createOrder, verifyPayment };

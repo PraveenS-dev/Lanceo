@@ -14,12 +14,17 @@ import { AiOutlinePlus } from 'react-icons/ai';
 import { Dialog } from "@headlessui/react";
 import Submit_btn from '../../components/Buttons/Submit_btn';
 import DarkModeSelect from '../../components/DarkModeSelect';
+import TicketReasons from "../../data/TicketReasons.json";
+import { CheckTicketExist, Store } from '../../services/Tickets';
+
 
 type FormInputs = {
     contract_id: string,
     remarks: string,
     percent: number,
+    reason: number,
 }
+
 
 // normalized file object shape is defined inline in state type below
 
@@ -44,6 +49,8 @@ const Contract_view = () => {
     const navigate = useNavigate();
     const userId = user?.id;
     const [isTermsOpen, setIsTermsOpen] = useState(false);
+    const [isTicketExist, setIsTicketExist] = useState(false);
+    const [isTicketOpen, setIsTicketOpen] = useState(false);
     const [availablePercents, setAvailablePercents] = useState<
         { value: number; label: string }[]
     >([]);
@@ -84,8 +91,14 @@ const Contract_view = () => {
         setAvailablePercents(available);
     };
 
+    const CheckTicket = async () => {
+        const res = await CheckTicketExist(contract_id);        
+        setIsTicketExist(res);
+    }
+
     useEffect(() => {
         fetchData();
+        CheckTicket();
     }, [contract_id, userId]);
 
     useEffect(() => {
@@ -139,7 +152,6 @@ const Contract_view = () => {
         }
         loadApprovalLogs();
     }, [editData?._id]);
-
 
     const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
@@ -196,6 +208,26 @@ const Contract_view = () => {
         }));
     };
 
+    const onTicketSubmit: SubmitHandler<FormInputs> = async (data) => {
+        try {
+            const formData = new FormData();
+
+            formData.append("contract_id", String(editData?._id));
+            formData.append("reason", String(data?.reason));
+            formData.append("remarks", String(data?.remarks));
+            formData.append("created_by", String(user?.id));
+
+            const res = await Store(formData);
+            ShowToast("Ticket Raised successfully!", "success");
+            setIsTicketOpen(false);
+            CheckTicket();
+
+            reset();
+        } catch (err: any) {
+            ShowToast(err.response?.data?.message || "Something went wrong", "error")
+
+        }
+    }
 
     const onSubmit: SubmitHandler<FormInputs> = async (data) => {
         try {
@@ -297,6 +329,15 @@ const Contract_view = () => {
             <div className='flex justify-between mt-3 p-3 bg-red-300 dark:bg-red-600/30 rounded-sm'>
                 <h3 className='text-2xl font-bold'>Contract View</h3>
                 <div className='flex'>
+                    {!isTicketExist &&
+                        <button
+                            onClick={() => setIsTicketOpen(true)}
+                            className="flex items-center gap-2  bg-red-600 dark:bg-red-800 font-medium transition-all duration-200  hover:bg-red-700 dark:hover:bg-red-300 active:scale-95 rounded-md  text-white dark:text-gray-200 py-2 px-4 cursor-pointer me-3"
+                        >
+                            <i className="fa-solid fa-ticket text-lg"></i>
+                            Raise Ticket
+                        </button>
+                    }
                     <Back_btn url={"/contracts/list"} />
                 </div>
             </div>
@@ -419,7 +460,6 @@ const Contract_view = () => {
                                 </button>
                             </div>
                         )}
-
 
                         {/* Attachment Submittion */}
                         {(editData?.contract_status == 2 || editData?.contract_status == 7) && editData?.freelancer == user?.id &&
@@ -683,6 +723,7 @@ const Contract_view = () => {
                                 </div>
                             </div>
                         )}
+
                         {/* Approval Form */}
                         {editData?.contract_status == 5 &&
                             ((editData?.created_by == user?.id) || user?.role == 1) && (
@@ -779,6 +820,76 @@ const Contract_view = () => {
                                 I Understand
                             </button>
                         </div>
+                    </Dialog.Panel>
+                </div>
+            </Dialog>
+
+            <Dialog
+                open={isTicketOpen}
+                onClose={() => setIsTicketOpen(false)}
+                className="relative z-50"
+            >
+                <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <Dialog.Panel className="mx-auto max-w-xl w-xl rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-xl border border-gray-300 dark:border-gray-700">
+                        <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                            ⚠️ Raise Ticket
+                        </Dialog.Title>
+
+                        <form onSubmit={handleSubmit(onTicketSubmit)} className="px-1">
+
+                            <div className="mt-4">
+                                <label
+                                    htmlFor="reason"
+                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                                >
+                                    Reason
+                                </label>
+                                <Controller
+                                    name="reason"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <DarkModeSelect
+                                            {...field}                  // pass field directly
+                                            options={TicketReasons}
+                                            placeholder="Select reason..."
+                                        />
+                                    )}
+                                />
+                            </div>
+
+                            <div className="mt-4">
+                                <label
+                                    htmlFor="remarks"
+                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                                >
+                                    Remarks
+                                </label>
+                                <textarea
+                                    id="remarks"
+                                    rows={6}
+                                    placeholder="Write your remarks here..."
+                                    className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-zinc-800 rounded-xl px-4 py-2 text-sm text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                    {...register("remarks", {
+                                        required: "Remarks is required!",
+                                        minLength: {
+                                            value: 2,
+                                            message: "Remarks must be at least 2 characters long!",
+                                        },
+                                    })}
+                                ></textarea>
+                                {errors.remarks && (
+                                    <span className="text-red-500 mt-1 text-sm">
+                                        {errors.remarks.message}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end mt-6">
+                                <Submit_btn isSubmitting={isSubmitting} />
+                            </div>
+                        </form>
                     </Dialog.Panel>
                 </div>
             </Dialog>

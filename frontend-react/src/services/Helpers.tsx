@@ -3,6 +3,7 @@ import categories from "../data/categories.json";
 import experience from "../data/experience.json";
 import skills from "../data/skills.json";
 import { apiClient } from "./Auth";
+import TicketReasons from "../data/TicketReasons.json";
 
 export const getUserRole = (role: number) => {
   let Rolename;
@@ -277,5 +278,63 @@ export const getContractStatus = (status: number) => {
   );
 };
 
+export const getTransactionType = (type: Number) => {
+  let text = "";
+  let style = "";
 
+  switch (type) {
+    case 1:
+      text = "Received";
+      style = "text-green-700";
+      break;
+    case 2:
+      text = "Sent";
+      style = "text-red-700";
+      break;
+    default:
+      text = "";
+      style = "bg-gray-100 text-gray-600";
+      break;
+  }
 
+  return (
+    <span className={`px-3 py-1 rounded-full text-sm font-medium ${style}`}>
+      {text}
+    </span>
+  );
+}
+
+export const getTicketStatus = (type: Number) => {
+  let text = "";
+  let style = "";
+
+  switch (type) {
+    case 1:
+      text = "Refund pending";
+      style = "text-white bg-yellow-500";
+      break;
+    case 2:
+      text = "closed";
+      style = "bg-green-700 text-white";
+      break;
+    case 2:
+      text = "canceled";
+      style = "bg-red-500 text-white";
+      break;
+    default:
+      text = "";
+      style = "bg-gray-100 text-gray-600";
+      break;
+  }
+
+  return (
+    <span className={`px-3 py-1 rounded-full text-sm font-medium ${style}`}>
+      {text}
+    </span>
+  );
+}
+
+export const getTicketReason = (reason: number) => {
+  const found = TicketReasons.find(item => item.value === reason);
+  return found ? found.label : "Unknown Reason";
+};

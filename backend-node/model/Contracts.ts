@@ -10,6 +10,12 @@ export interface ContractDetails extends Document {
     temp_completion_percentage: Number,
     freelancer: string,
     remarks: string,
+    freelancer_rating_status: number,
+    freelancer_rating: number,
+    freelancer_review: string,
+    client_rating_status: number,
+    client_rating: number,
+    client_review: string,
     contract_status: 1 | 2 | 3 | 4 | 5 | 6 | 7;
     form_status?: 1 | 0;
     status?: 1 | 0;
@@ -29,6 +35,12 @@ const ContractSchema: Schema<ContractDetails> = new mongoose.Schema({
     temp_completion_percentage: { type: Number, default: 0 },
     freelancer: { type: String },
     remarks: { type: String },
+    freelancer_rating_status: { type: Number, default: 0 },
+    freelancer_rating: { type: Number },
+    freelancer_review: { type: String },
+    client_rating_status: { type: Number, default: 0 }, // 0 => review not complete 1 => review completed
+    client_rating: { type: Number },
+    client_review: { type: String },
     contract_status: { type: Number, enum: [1, 2, 3, 4, 5, 6, 7], default: 1 },
     // 1 => payment pending, 2 => working, 3 => Ticket raised , 4 => Ticket closed ,
     // 5 => project submitted , 6 => completed , 7 => Re-work needed
