@@ -317,7 +317,7 @@ export const getTicketStatus = (type: Number) => {
       text = "closed";
       style = "bg-green-700 text-white";
       break;
-    case 2:
+    case 3:
       text = "canceled";
       style = "bg-red-500 text-white";
       break;

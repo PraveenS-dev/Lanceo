@@ -97,6 +97,40 @@ apiMultipart.interceptors.response.use(
     }
 );
 
+// Upload profile image
+export const uploadProfileImage = async (file: File) => {
+    try {
+        const form = new FormData();
+        form.append('image', file);
+        const res = await apiMultipart.post('/updateProfileImage', form);
+        return res.data;
+    } catch (err: any) {
+        throw err;
+    }
+};
+
+// Upload cover image
+export const uploadCoverImage = async (file: File) => {
+    try {
+        const form = new FormData();
+        form.append('image', file);
+        const res = await apiMultipart.post('/updateCoverImage', form);
+        return res.data;
+    } catch (err: any) {
+        throw err;
+    }
+};
+
+// Update profile info
+export const updateProfileInfo = async (data: { name?: string; profile_description?: string; upi_id?: string }) => {
+    try {
+        const res = await apiClient.post('/updateProfileInfo', data);
+        return res.data;
+    } catch (err: any) {
+        throw err;
+    }
+};
+
 export const UserLogin = async (data: LoginData): Promise<LoginResponse> => {
     try {
         const res = await apiClient.post('/login', {

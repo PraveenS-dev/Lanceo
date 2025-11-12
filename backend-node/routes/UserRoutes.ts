@@ -1,8 +1,22 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import authMiddleware from "../middlewares/authMiddleware";
-import { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser, getUserName } from "../controller/Admin/UserController";
+const multer = require('multer');
+import path from "path";
+import { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser, getUserName, updateProfileImage, updateCoverImage, updateProfileInfo } from "../controller/Admin/UserController";
 
 const router = express.Router();
+
+// Multer setup for user images
+const storage = multer.diskStorage({
+		destination: function (req: any, file: any, cb: any) {
+		cb(null, path.resolve(__dirname, "../uploads/users"));
+	},
+		filename: function (req: any, file: any, cb: any) {
+		const unique = Date.now() + '_' + Math.round(Math.random() * 1e9);
+		cb(null, unique + path.extname(file.originalname));
+	}
+});
+const upload = multer({ storage });
 
 // Public routes
 router.post('/register', Register);
@@ -14,5 +28,10 @@ router.post('/uniqueUserName', uniqueUserName);
 router.get('/fetchUser', fetchUser);
 router.get('/me', authMiddleware, getCurrentUser);
 router.get('/getUserName', authMiddleware, getUserName);
+
+// Upload endpoints
+router.post('/updateProfileImage', authMiddleware, upload.single('image'), updateProfileImage);
+router.post('/updateCoverImage', authMiddleware, upload.single('image'), updateCoverImage);
+router.post('/updateProfileInfo', authMiddleware, updateProfileInfo);
 
 export default router;

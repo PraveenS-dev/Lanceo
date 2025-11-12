@@ -164,3 +164,70 @@ const getUserName = async (req: Request, res: Response) => {
 }
 
 export { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser, getUserName };
+
+// Update profile image (expects multer to have saved file on disk as req.file)
+const updateProfileImage = async (req: any, res: any) => {
+    try {
+        const user = (req as any).user;
+        if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+        const file = req.file;
+        if (!file) return res.status(400).json({ message: 'Image is required' });
+
+        // Build public URL - server serves users uploads at /api/uploads/users
+        const profileUrl = `/uploads/users/${file.filename}`;
+
+        await User.findByIdAndUpdate(user._id, { profile_url: profileUrl });
+
+        return res.status(200).json({ success: true, profile_url: profileUrl });
+    } catch (err) {
+        console.error('updateProfileImage error:', err);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Update cover image
+const updateCoverImage = async (req: any, res: any) => {
+    try {
+        const user = (req as any).user;
+        if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+        const file = req.file;
+        if (!file) return res.status(400).json({ message: 'Image is required' });
+
+        const coverUrl = `/uploads/users/${file.filename}`;
+
+        await User.findByIdAndUpdate(user._id, { cover_url: coverUrl });
+
+        return res.status(200).json({ success: true, cover_url: coverUrl });
+    } catch (err) {
+        console.error('updateCoverImage error:', err);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export { updateProfileImage, updateCoverImage };
+
+// Update basic profile info: name, profile_description, upi_id
+const updateProfileInfo = async (req: any, res: any) => {
+    try {
+        const user = (req as any).user;
+        if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+        const { name, profile_description, upi_id } = req.body;
+
+        const updateData: any = {};
+        if (typeof name !== 'undefined') updateData.name = name;
+        if (typeof profile_description !== 'undefined') updateData.profile_description = profile_description;
+        if (typeof upi_id !== 'undefined') updateData.upi_id = upi_id;
+
+        await User.findByIdAndUpdate(user._id, updateData, { new: true });
+
+        return res.status(200).json({ success: true, data: updateData });
+    } catch (err) {
+        console.error('updateProfileInfo error:', err);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export { updateProfileInfo };

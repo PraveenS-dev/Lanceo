@@ -44,6 +44,12 @@ const Topbar: React.FC<TopbarProps> = ({ toggleLeftMenu }) => {
                 <Notification />
                 <ThemeToggle />
                 <button
+                    onClick={()=>navigate("/profile")}
+                    className="text-black dark:text-white hover:underline cursor-pointer text-2xl font-bold"
+                >
+                    <FaUser />
+                </button>
+                <button
                     onClick={handleLogout}
                     className="text-black dark:text-white hover:underline cursor-pointer text-2xl font-bold"
                 >
