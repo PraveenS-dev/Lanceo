@@ -9,6 +9,10 @@ export interface IUser extends Document {
     password: string;
     isVerified?: boolean;
     verifyToken?: string;
+    profile_url: string;
+    cover_url: string;
+    profile_description: string;
+    upi_id: string;
     status?: 1 | 0;
     trash?: "YES" | "NO";
     created_at?: Date;
@@ -22,6 +26,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     password: { type: String, required: true },
     isVerified: { type: Boolean, default: false },
     verifyToken: { type: String },
+    profile_url: { type: String },
+    cover_url: { type: String },
+    profile_description: { type: String },
+    upi_id: { type: String },
     status: { type: Number, enum: [1, 0], default: 1 },
     trash: { type: String, enum: ["YES", "NO"], default: "NO" },
     created_at: { type: Date, default: Date.now },

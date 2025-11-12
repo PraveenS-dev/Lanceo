@@ -12,6 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "@tailwindcss/vite": "^4.1.13",
+    "apexcharts": "^5.3.6",
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
@@ -19,7 +20,9 @@
     "framer-motion": "^12.23.22",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
+    "react-apexcharts": "^1.8.0",
     "react-dom": "^19.1.1",
+    "react-easy-crop": "^5.0.6",
     "react-flatpickr": "^4.0.11",
     "react-hook-form": "^7.63.0",
     "react-hot-toast": "^2.6.0",

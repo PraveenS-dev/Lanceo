@@ -22,6 +22,7 @@ import ContractRoutes from "./routes/ContractorRoutes";
 import { sendNotification } from "./controller/Admin/NotificationController";
 import TransactionRoutes from "./routes/TransactionRoutes";
 import TicketsRoutes from "./routes/TicketsRoutes";
+import DashboardRoutes from "./routes/DashboardRoutes";
 // Start cron jobs (side-effect import)
 import "./controller/Admin/CronController";
 
@@ -53,9 +54,16 @@ if (!fs.existsSync(contractUploadsDir)) {
   fs.mkdirSync(contractUploadsDir, { recursive: true });
 }
 
+// Ensure users uploads directory exists and serve it
+const usersUploadsDir = path.resolve(__dirname, "./uploads/users");
+if (!fs.existsSync(usersUploadsDir)) {
+  fs.mkdirSync(usersUploadsDir, { recursive: true });
+}
+
 // Static files
 app.use("/api/uploads/projects", express.static(uploadsDir));
 app.use("/api/uploads/contracts", express.static(contractUploadsDir));
+app.use("/api/uploads/users", express.static(usersUploadsDir));
 
 // Routes
 app.use("/api", userRoutes);
@@ -68,6 +76,7 @@ app.use("/api/bittings", BittingRoutes);
 app.use("/api/contracts", ContractRoutes);
 app.use("/api/transactions", TransactionRoutes);
 app.use("/api/tickets", TicketsRoutes);
+app.use("/api/dashboard", DashboardRoutes);
 
 io.on("connection", (socket) => {
   console.log("A user connected: " + socket.id);

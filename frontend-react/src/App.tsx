@@ -27,6 +27,7 @@ import Transaction_list from './pages/transactions/Transaction_list'
 import Transaction_view from './pages/transactions/Transaction_view'
 import Ticket_list from './pages/tickets/Ticket_list'
 import Ticket_view from './pages/tickets/Ticket_view'
+import Profile from './pages/Profile'
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -145,6 +146,13 @@ function App() {
         <Route path='/tickets/view/:ticket_id' element={
           <ProtectedRoute>
             <Mainlayout pageUrl="/tickets/list" pageName="Tickets View"><Ticket_view /></Mainlayout>
+          </ProtectedRoute>
+        } />
+
+         {/* Profile Routes */}
+        <Route path='/profile' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/profile" pageName="Profile"><Profile /></Mainlayout>
           </ProtectedRoute>
         } />
 
