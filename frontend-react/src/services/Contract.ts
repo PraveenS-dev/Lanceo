@@ -27,6 +27,13 @@ type ApprovalData = {
     action: string,
 }
 
+type RatingData = {
+    user_type: Number,
+    rating: Number,
+    review: string,
+    contract_id: string,
+}
+
 export const AttachmentSubmition = async (data: ContractAttachmentData) => {
     try {
         const res = await apiMultipart.post('/contracts/attachmentSubmittion', data);
@@ -38,6 +45,15 @@ export const AttachmentSubmition = async (data: ContractAttachmentData) => {
 export const submitPayment = async (data: paymentData) => {
     try {
         const res = await apiClient.post('/contracts/submitPayment', data);
+        return res;
+    } catch (err: any) {
+        throw err;
+    }
+}
+
+export const SubmitRatingData = async (data: RatingData) => {
+    try {
+        const res = await apiClient.post('/contracts/submitRating', data);
         return res;
     } catch (err: any) {
         throw err;
@@ -73,7 +89,7 @@ export const getContractData = async (contract_id: string | undefined) => {
 
 export const ContractApproval = async (data: ApprovalData) => {
     try {
-        const res = await apiClient.post('/contracts/approval',  data );
+        const res = await apiClient.post('/contracts/approval', data);
         return res;
     } catch (err: any) {
         throw err;

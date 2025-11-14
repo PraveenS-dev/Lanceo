@@ -2,6 +2,7 @@ import User, { IUser } from "../../model/User";
 import bcrypt from "bcryptjs";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { Request, Response } from "express";
+import Contracts from "../../model/Contracts";
 
 const JWT_SECRET: string = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET || 'test';
 const JWT_EXPIRES: string = process.env.JWT_EXPIRES_IN || '1d';
@@ -230,4 +231,53 @@ const updateProfileInfo = async (req: any, res: any) => {
     }
 };
 
-export { updateProfileInfo };
+const getReviewData = async (req: any, res: any) => {
+    try {
+        const { user_id, user_role } = req.query;
+
+        const reviewArray: {
+            profile_url: string[];
+            name: string[];
+            rating: number[];
+            review: string[];
+        } = {
+            profile_url: [],
+            name: [],
+            rating: [],
+            review: [],
+        };
+
+        let contracts;
+
+        if (user_role == 2) {
+            // Freelancer → Get reviews given by clients
+            contracts = await Contracts.find({ freelancer: user_id, client_rating_status: 1 });
+            for (const data of contracts) {
+                const userData = await User.findById(data.created_by).select("profile_url name");
+                reviewArray.profile_url.push(userData?.profile_url || "");
+                reviewArray.name.push(userData?.name || "");
+                reviewArray.rating.push(data.client_rating || 0);
+                reviewArray.review.push(data.client_review || "");
+            }
+        } else if (user_role == 3) {
+            // Client → Get reviews given by freelancers
+            contracts = await Contracts.find({ created_by: user_id, freelancer_rating_status: 1 });
+            for (const data of contracts) {
+                const userData = await User.findById(data.freelancer).select("profile_url name");
+                reviewArray.profile_url.push(userData?.profile_url || "");
+                reviewArray.name.push(userData?.name || "");
+                reviewArray.rating.push(data.freelancer_rating || 0);
+                reviewArray.review.push(data.freelancer_review || "");
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: reviewArray,
+        });
+    } catch (err) {
+        console.error("getReviewData error:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
+export { updateProfileInfo, getReviewData };

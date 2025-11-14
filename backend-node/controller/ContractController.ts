@@ -411,7 +411,7 @@ const submitPayment = async (req: Request, res: Response) => {
     }
 }
 
-const releasePayment = async (req?: Request | null,res?: Response | null): Promise<void | Response> => {
+const releasePayment = async (req?: Request | null, res?: Response | null): Promise<void | Response> => {
     const reply = (code: number, body: any) => {
         if (res && typeof res.status === "function") {
             return res.status(code).json(body);
@@ -642,7 +642,6 @@ const releasePayment = async (req?: Request | null,res?: Response | null): Promi
     }
 };
 
-
 const createOrder = async (req: Request, res: Response) => {
     try {
         if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -693,7 +692,6 @@ const createOrder = async (req: Request, res: Response) => {
     }
 };
 
-// ✅ Verify payment after success
 const verifyPayment = async (req: Request, res: Response) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
@@ -714,4 +712,26 @@ const verifyPayment = async (req: Request, res: Response) => {
     }
 };
 
-export { List, GetData, Delete, Approval, AttachmentSubmittion, getAllAttachment, submitPayment, releasePayment, createOrder, verifyPayment };
+const SubmitRating = async (req: Request, res: Response) => {
+    try {
+        const { contract_id, user_type, rating, review } = req.body; //user_type = 1 => freelancer , 2 => client
+
+        if (user_type == 1) {
+            const newFreelancerRating = await Contracts.findByIdAndUpdate(contract_id, { freelancer_rating: rating, freelancer_review: review, freelancer_rating_status: 1 });
+
+        } else if (user_type == 2) {
+            const newClientRating = await Contracts.findByIdAndUpdate(contract_id, { client_rating: rating, client_review: review, client_rating_status: 1 });
+
+        } else {
+            return res.status(500).json({ message: "User type required!" })
+        }
+
+        return res.status(200).json({ message: "Rating submitted successfully!" })
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+
+export { List, GetData, Delete, Approval, AttachmentSubmittion, getAllAttachment, submitPayment, releasePayment, createOrder, verifyPayment, SubmitRating };

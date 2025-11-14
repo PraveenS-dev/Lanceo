@@ -636,7 +636,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 max-w-sm md:max-w-md lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl">
       <div className="p-6 max-w-7xl mx-auto">
         <BrudCrumbs crumbs={crumbs} />
         <div className='flex justify-between mt-3 p-3 bg-red-300 dark:bg-red-600/30 rounded-sm'>
@@ -796,7 +796,7 @@ const Dashboard = () => {
                 />
 
                 {/* Statistics */}
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                     <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Projects</p>
                     <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
@@ -1096,7 +1096,7 @@ const Dashboard = () => {
               </div>
 
               {/* Statistics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 {/* Sent Amount Card */}
                 <motion.div
                   whileHover={{ scale: 1.02 }}

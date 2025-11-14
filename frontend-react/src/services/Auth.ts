@@ -161,4 +161,13 @@ export const fetchUserById = async (id: string): Promise<{ userDetails: UserData
     }
 };
 
+export const fetchReviewById = async (user_id: string, user_role: Number) => {
+    try {
+        const res = await apiClient.get(`/getReviewData`, { params: { user_id, user_role } });
+        return res.data.data;
+    } catch (err: any) {
+        throw err;
+    }
+};
+
 export { apiClient, apiMultipart };

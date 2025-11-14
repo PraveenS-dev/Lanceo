@@ -340,7 +340,7 @@ export const TransactionStats = async (req: Request, res: Response) => {
   try {
     const { year, month, user_id, role } = req.query;
 
-    console.log("TransactionStats - Received params:", { year, month, user_id, role });
+    // console.log("TransactionStats - Received params:", { year, month, user_id, role });
 
     const match: any = { status: 1, trash: "NO" };
 
@@ -355,11 +355,11 @@ export const TransactionStats = async (req: Request, res: Response) => {
     let filterYear = parseInt(year as string) || new Date().getFullYear();
     let filterMonth = month && month !== 'undefined' ? parseInt(month as string) : null;
 
-    console.log("TransactionStats - filterYear:", filterYear, "filterMonth:", filterMonth);
+    // console.log("TransactionStats - filterYear:", filterYear, "filterMonth:", filterMonth);
 
     // First, get the total count of matching documents
     const totalCount = await Transaction.countDocuments(match);
-    console.log("TransactionStats - Total matching documents with base filter:", totalCount);
+    // console.log("TransactionStats - Total matching documents with base filter:", totalCount);
 
     if (filterMonth !== null) {
       // Filter for specific month
@@ -500,7 +500,7 @@ export const TransactionStats = async (req: Request, res: Response) => {
 
       const remainingPurse = purseData.length > 0 ? purseData[0].total : 0;
 
-      console.log("TransactionStats - Year data:", { monthlyReceived, monthlySent, sentAmount, receivedAmount });
+      // console.log("TransactionStats - Year data:", { monthlyReceived, monthlySent, sentAmount, receivedAmount });
 
       return res.status(200).json({
         success: true,

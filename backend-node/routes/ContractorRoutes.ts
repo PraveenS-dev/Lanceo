@@ -1,6 +1,6 @@
 import express from "express";
 import authMiddleware from "../middlewares/authMiddleware";
-import { List, GetData, Delete, Approval, AttachmentSubmittion, getAllAttachment, submitPayment, createOrder, verifyPayment } from "../controller/ContractController";
+import { List, GetData, Delete, Approval, AttachmentSubmittion, getAllAttachment, submitPayment, createOrder, verifyPayment, SubmitRating } from "../controller/ContractController";
 import { listByContract as approvalLogList } from "../controller/ContractApprovalLogController";
 import path from "path";
 import fs from "fs";
@@ -34,6 +34,8 @@ router.post('/approval', authMiddleware, Approval);
 router.get('/getAllAttachment', authMiddleware, getAllAttachment);
 router.post('/submitPayment', authMiddleware, submitPayment);
 router.get('/approvalLogs', authMiddleware, approvalLogList);
+router.post("/submitRating", authMiddleware, SubmitRating);
+
 router.post("/razorpay/create-order", authMiddleware, createOrder);
 router.post("/razorpay/verify-payment", authMiddleware, verifyPayment);
 
