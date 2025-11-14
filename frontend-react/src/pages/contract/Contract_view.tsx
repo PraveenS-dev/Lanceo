@@ -8,7 +8,7 @@ import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { ShowToast } from '../../utils/showToast';
 import Approve_btn from '../../components/Buttons/Approve_btn';
 import Reject_btn from '../../components/Buttons/Reject_btn';
-import { AttachmentSubmition, ContractApproval, getContractData, getContractAttachmentsByPercentage, getApprovalLogs } from '../../services/Contract';
+import { AttachmentSubmition, ContractApproval, getContractData, getContractAttachmentsByPercentage, getApprovalLogs, SubmitRatingData } from '../../services/Contract';
 import { useUserName } from '../../utils/useUserName';
 import { AiOutlinePlus } from 'react-icons/ai';
 import { Dialog } from "@headlessui/react";
@@ -16,13 +16,15 @@ import Submit_btn from '../../components/Buttons/Submit_btn';
 import DarkModeSelect from '../../components/DarkModeSelect';
 import TicketReasons from "../../data/TicketReasons.json";
 import { CheckTicketExist, Store } from '../../services/Tickets';
-
+import { Star } from 'lucide-react';
+import { motion } from "framer-motion";
 
 type FormInputs = {
     contract_id: string,
     remarks: string,
     percent: number,
     reason: number,
+    rating: number,
 }
 
 
@@ -32,7 +34,7 @@ const Contract_view = () => {
     const { contract_id } = useParams<({ contract_id: string })>();
     const { user } = useAuth();
     const [editData, setEditData] = useState<any>(null);
-    const { register, control, reset, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormInputs>({ mode: "onChange" });
+    const { register, control, reset, watch, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormInputs>({ mode: "onChange" });
     const [actionStatus, setActionStatus] = useState(null);
     const [files, setFiles] = useState<
         {
@@ -51,6 +53,7 @@ const Contract_view = () => {
     const [isTermsOpen, setIsTermsOpen] = useState(false);
     const [isTicketExist, setIsTicketExist] = useState(false);
     const [isTicketOpen, setIsTicketOpen] = useState(false);
+    const [ratingOpen, setRatingOpen] = useState(false);
     const [availablePercents, setAvailablePercents] = useState<
         { value: number; label: string }[]
     >([]);
@@ -80,6 +83,13 @@ const Contract_view = () => {
         { label: "View" },
     ];
 
+    const [hover, setHover] = useState<number | null>(null);
+    const rating = watch("rating") || 0;
+
+    const handleClick = (value: number) => {
+        setValue("rating", value);
+    };
+
     const fetchData = async () => {
         const res = await getContractData(contract_id);
         setEditData(res);
@@ -92,7 +102,7 @@ const Contract_view = () => {
     };
 
     const CheckTicket = async () => {
-        const res = await CheckTicketExist(contract_id);        
+        const res = await CheckTicketExist(contract_id);
         setIsTicketExist(res);
     }
 
@@ -229,6 +239,27 @@ const Contract_view = () => {
         }
     }
 
+    const onRatingSubmit: SubmitHandler<FormInputs> = async (data) => {
+        try {
+            const formData = new FormData();
+
+            formData.append("contract_id", String(editData?._id));
+            formData.append("rating", String(data?.rating));
+            formData.append("review", String(data?.remarks));
+            formData.append("user_type", String(user?.id == editData?.created_by ? 2 : 1));
+
+            const res = await SubmitRatingData(formData);
+            ShowToast("Rating submitted successfully!", "success");
+            setRatingOpen(false);
+            fetchData();
+
+            reset();
+        } catch (err: any) {
+            ShowToast(err.response?.data?.message || "Something went wrong", "error")
+
+        }
+    }
+
     const onSubmit: SubmitHandler<FormInputs> = async (data) => {
         try {
 
@@ -338,6 +369,20 @@ const Contract_view = () => {
                             Raise Ticket
                         </button>
                     }
+                    {(
+                        (editData?.freelancer_rating_status === 0 && editData?.freelancer === user?.id) ||
+                        (editData?.client_rating_status === 0 && editData?.created_by === user?.id) ||
+                        user?.role === 1
+                    ) && (
+                            <button
+                                onClick={() => setRatingOpen(true)}
+                                className="flex items-center gap-2 bg-red-600 dark:bg-red-800 font-medium transition-all duration-200 hover:bg-red-700 dark:hover:bg-red-300 active:scale-95 rounded-md text-white dark:text-gray-200 py-2 px-4 cursor-pointer me-3 w-fit"
+                            >
+                                <i className="fa-solid fa-star text-lg"></i>
+                                Give Rating
+                            </button>
+                        )}
+
                     <Back_btn url={"/contracts/list"} />
                 </div>
             </div>
@@ -460,6 +505,88 @@ const Contract_view = () => {
                                 </button>
                             </div>
                         )}
+
+                        {(editData?.freelancer_rating_status == 1 || editData?.client_rating_status == 1) && (
+                            <div className="mt-5">
+                                {/* 🔴 Keep your original header design */}
+                                <div className='mt-3 p-2 border-l-4 border-red-400 dark:border-red-500 bg-red-100 dark:bg-red-600/20 rounded-sm'>
+                                    <h3 className='text-xl font-semibold text-red-700 dark:text-red-100'>
+                                        Reviews and Ratings
+                                    </h3>
+                                </div>
+
+                                <div className="mt-4 space-y-5">
+                                    {/* Freelancer Review */}
+                                    {editData?.freelancer_rating_status == 1 && (
+                                        <div className="p-5 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-300">
+                                            <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2 flex items-center gap-2">
+                                                <i className="fa-solid fa-user-tie text-blue-500"></i>
+                                                {editData?.freelancer == user?.id ? "Your Review" : "Freelancer's Review"}
+                                            </h4>
+
+                                            <div className="flex items-center gap-1 mb-2">
+                                                {[...Array(5)].map((_, i) => {
+                                                    const ratingValue = i + 1;
+                                                    return (
+
+                                                        <Star
+                                                            size={20}
+                                                            className={`transition-all duration-150 ${ratingValue <= editData?.freelancer_rating
+                                                                ? "text-yellow-400 fill-yellow-400 scale-110 drop-shadow-sm"
+                                                                : "text-gray-400 dark:text-gray-500"
+                                                                }`}
+                                                        />
+
+                                                    );
+                                                })}
+                                                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                                                    {editData?.freelancer_rating?.toFixed(1)} / 5
+                                                </span>
+                                            </div>
+
+                                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                {editData?.freelancer_review || "No written review provided."}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Client Review */}
+                                    {editData?.client_rating_status == 1 && (
+                                        <div className="p-5 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-300">
+                                            <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2 flex items-center gap-2">
+                                                <i className="fa-solid fa-briefcase text-green-500"></i>
+                                                {editData?.created_by == user?.id ? "Your Review" : "Client's Review"}
+                                            </h4>
+
+                                            <div className="flex items-center gap-1 mb-2">
+                                                {[...Array(5)].map((_, i) => {
+                                                    const ratingValue = i + 1;
+                                                    return (
+                                                         <Star
+                                                            size={20}
+                                                            className={`transition-all duration-150 ${ratingValue <= editData?.client_rating
+                                                                ? "text-yellow-400 fill-yellow-400 scale-110 drop-shadow-sm"
+                                                                : "text-gray-400 dark:text-gray-500"
+                                                                }`}
+                                                        />
+                                                    );
+                                                })}
+                                                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                                                    {editData?.client_rating?.toFixed(1)} / 5
+                                                </span>
+                                            </div>
+
+                                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                                {editData?.client_review || "No written review provided."}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Divider */}
+                        <div className="border-t border-gray-100 dark:border-gray-700 my-6"></div>
 
                         {/* Attachment Submittion */}
                         {(editData?.contract_status == 2 || editData?.contract_status == 7) && editData?.freelancer == user?.id &&
@@ -870,6 +997,88 @@ const Contract_view = () => {
                                     id="remarks"
                                     rows={6}
                                     placeholder="Write your remarks here..."
+                                    className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-zinc-800 rounded-xl px-4 py-2 text-sm text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                    {...register("remarks", {
+                                        required: "Remarks is required!",
+                                        minLength: {
+                                            value: 2,
+                                            message: "Remarks must be at least 2 characters long!",
+                                        },
+                                    })}
+                                ></textarea>
+                                {errors.remarks && (
+                                    <span className="text-red-500 mt-1 text-sm">
+                                        {errors.remarks.message}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end mt-6">
+                                <Submit_btn isSubmitting={isSubmitting} />
+                            </div>
+                        </form>
+                    </Dialog.Panel>
+                </div>
+            </Dialog>
+
+            <Dialog
+                open={ratingOpen}
+                onClose={() => setRatingOpen(false)}
+                className="relative z-50"
+            >
+                <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <Dialog.Panel className="mx-auto max-w-xl w-xl rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-xl border border-gray-300 dark:border-gray-700">
+                        <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                            ⚠️ Ratings
+                        </Dialog.Title>
+
+                        <form onSubmit={handleSubmit(onRatingSubmit)} className="px-1">
+
+                            <div className="mt-4">
+                                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Rating
+                                </label>
+                                <div className="flex items-center space-x-2">
+                                    {[...Array(5)].map((_, i) => {
+                                        const value = (i + 1) * 1;
+                                        const filled = hover ? value <= hover : value <= rating;
+                                        return (
+                                            <motion.div
+                                                key={i}
+                                                onMouseEnter={() => setHover(value)}
+                                                onMouseLeave={() => setHover(null)}
+                                                onClick={() => handleClick(value)}
+                                                whileTap={{ scale: 0.9 }}
+                                                className="cursor-pointer"
+                                            >
+                                                <Star
+                                                    size={28}
+                                                    className={`transition-all duration-150 ${filled
+                                                        ? "text-yellow-400 fill-yellow-400 scale-110 drop-shadow-sm"
+                                                        : "text-gray-400 dark:text-gray-500"
+                                                        }`}
+                                                />
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    {rating ? `${rating.toFixed(1)} / 5` : "Select your rating"}
+                                </p>
+                            </div>
+                            <div className="mt-4">
+                                <label
+                                    htmlFor="remarks"
+                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                                >
+                                    Review
+                                </label>
+                                <textarea
+                                    id="remarks"
+                                    rows={6}
+                                    placeholder="Write your review here..."
                                     className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-zinc-800 rounded-xl px-4 py-2 text-sm text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition"
                                     {...register("remarks", {
                                         required: "Remarks is required!",

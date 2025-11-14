@@ -2,7 +2,7 @@ import express from "express";
 import authMiddleware from "../middlewares/authMiddleware";
 const multer = require('multer');
 import path from "path";
-import { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser, getUserName, updateProfileImage, updateCoverImage, updateProfileInfo } from "../controller/Admin/UserController";
+import { Register, Login, uniqueEmail, uniqueUserName, fetchUser, getCurrentUser, getUserName, updateProfileImage, updateCoverImage, updateProfileInfo, getReviewData } from "../controller/Admin/UserController";
 
 const router = express.Router();
 
@@ -33,5 +33,6 @@ router.get('/getUserName', authMiddleware, getUserName);
 router.post('/updateProfileImage', authMiddleware, upload.single('image'), updateProfileImage);
 router.post('/updateCoverImage', authMiddleware, upload.single('image'), updateCoverImage);
 router.post('/updateProfileInfo', authMiddleware, updateProfileInfo);
+router.get('/getReviewData', authMiddleware, getReviewData);
 
 export default router;
