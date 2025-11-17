@@ -23,12 +23,12 @@ const Login = () => {
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data: LoginData) => {
     try {
       const res = await UserLogin(data);
-      
-      ShowToast("Logged in successfully!", "success");
-      
+
+
       // Use the login function from AuthContext
       login(res.user, res.token);
-      
+
+      ShowToast("Logged in successfully!", "success");
       navigate("/dashboard");
       reset();
     } catch (err: any) {
@@ -40,6 +40,15 @@ const Login = () => {
 
   return (
     <div>
+      {/* <div className="flex justify-center mb-3">
+        <div className="overflow-hidden rounded-full w-12 text-center ">
+          <img
+            src="../../../public/logo.png"
+            alt=""
+            className="w-15 rounded-full overflow-hidden scale-150 transition-transform duration-300"
+          />
+        </div>
+      </div> */}
       <h1 className="text-3xl font-extrabold text-center mb-8 text-gray-800 dark:text-white">
         Login to Your Account
       </h1>

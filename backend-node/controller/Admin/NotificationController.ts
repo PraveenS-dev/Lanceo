@@ -91,6 +91,29 @@ const ViewNotification = async (req: any, res: Response) => {
     }
 }
 
+const MarkAllRead = async (req: any, res: Response) => {
+    try {
+        const { userId } = req.body
+
+        const notifications = await Notification.find({
+            assigned_users: { $regex: new RegExp(`(^|,)${userId}(,|$)`) },
+        })
+
+        await Promise.all(notifications.map(async (notification) => {
+            const logExist = await NotificationLog.findOne({ notification_id: notification._id, userId: userId });
+            if (!logExist) {
+                const NewNotificationLog = new NotificationLog({ notification_id: notification._id, userId });
+                await NewNotificationLog.save();
+            }
+        }))
+
+        return res.status(200).json({ message: "Notification Log Stored Successfully!" });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
 const GetDataAll = async (req: any, res: Response) => {
     try {
         const { user_id } = req.body;
@@ -122,4 +145,4 @@ const GetDataAll = async (req: any, res: Response) => {
     }
 };
 
-export { sendNotification, GetData, ViewNotification, GetDataAll }
+export { sendNotification, GetData, ViewNotification, GetDataAll, MarkAllRead }

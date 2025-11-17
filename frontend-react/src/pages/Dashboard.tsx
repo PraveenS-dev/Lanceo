@@ -96,6 +96,7 @@ const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState<string>((new Date().getMonth() + 1).toString().padStart(2, '0'));
   const [showFilter, setShowFilter] = useState(false);
+  const isAdmin = user?.role == 1;
 
   const crumbs = [
     { label: "Home", path: "/dashboard" },
@@ -543,7 +544,7 @@ const Dashboard = () => {
         enabled: true,
       },
     },
-    colors: ['#10b981', '#ef4444'],
+    colors: isAdmin ? ['#10b981', '#ef4444'] : ['#10b981', '#ef4444'],
     stroke: {
       curve: 'smooth',
       width: 3,
@@ -617,16 +618,36 @@ const Dashboard = () => {
     },
   };
 
-  const transactionChartSeries = [
-    {
-      name: 'Amount Received',
-      data: transactionData?.stats?.monthlyReceived || Array(12).fill(0),
-    },
-    {
-      name: 'Amount Sent',
-      data: transactionData?.stats?.monthlySent || Array(12).fill(0),
-    },
-  ];
+  let transactionChartSeries = [];
+  if (user?.role == 1) {
+    transactionChartSeries = [
+
+      {
+        name: 'Amount Received',
+        data: transactionData?.stats?.monthlyReceived || Array(12).fill(0),
+      },
+      {
+        name: 'Amount Sent',
+        data: transactionData?.stats?.monthlySent || Array(12).fill(0),
+      },
+    ];
+
+  }
+  else {
+    transactionChartSeries = [
+      {
+        name: 'Amount Received',
+        data: transactionData?.stats?.monthlySent || Array(12).fill(0),
+      },
+      {
+        name: 'Amount Sent',
+        data: transactionData?.stats?.monthlyReceived || Array(12).fill(0),
+      },
+
+    ];
+  }
+
+
 
   const chartSeries = [
     {

@@ -229,7 +229,7 @@ const closeTicket = async (req?: Request | null, res?: Response | null) => {
 
             const budget = Number(contract_details?.budget || 0);
             const freelancer_percent = Number(contract_details?.completion_percentage || 0);
-            const client_percent = 100 - freelancer_percent;
+            const client_percent = Number(contract_details?.payed_percentage || 0) - freelancer_percent;
 
             // update ticket status
             await Tickets.findByIdAndUpdate(ticket_id, {

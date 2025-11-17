@@ -129,7 +129,7 @@ io.on("connection", (socket) => {
         const title = "New message";
         const subject = `${userName ?? senderId} sent you a message: ${message?.slice(0, 100)}`;
         // sendNotification expects assigned_users array and io instance
-        await sendNotification({ title, subject, assigned_users: [receiverId], url: `/chat/${senderId}`, io });
+        await sendNotification({ title, subject, assigned_users: [receiverId], url: ``, io });
       } catch (notifErr) {
         console.error("Failed to send notification for private_message:", notifErr);
       }

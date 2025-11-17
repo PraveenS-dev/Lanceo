@@ -70,40 +70,50 @@ const Transaction_view = () => {
 
                         {/* Info Grid */}
                         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                            {editData?.payment_type == 1 &&
+                            {user?.role == 1 && editData?.payment_type == 1 && (
                                 <div>
-                                    <p className="font-medium text-gray-600 dark:text-gray-400">
-                                        Payment From:{" "}
-                                        <span className="text-gray-800 dark:text-gray-100 font-semibold">
-                                            <UserNameDisplay userId={editData?.payment_person} />
-
-                                        </span>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment From:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> <UserNameDisplay userId={editData?.payment_person} /> </span>
                                     </p>
-                                    <p className="font-medium text-gray-600 dark:text-gray-400">
-                                        Payment To:{" "}
-                                        <span className="text-gray-800 dark:text-gray-100 font-semibold">
-                                            Lanceo
-                                        </span>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment To:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> Lanceo </span>
                                     </p>
                                 </div>
-                            }
-                            {editData?.payment_type == 2 &&
-                                <div>
-                                    <p className="font-medium text-gray-600 dark:text-gray-400">
-                                        Payment From:{" "}
-                                        <span className="text-gray-800 dark:text-gray-100 font-semibold">
-                                            Lanceo
-                                        </span>
-                                    </p>
-                                    <p className="font-medium text-gray-600 dark:text-gray-400">
-                                        Payment To:{" "}
-                                        <span className="text-gray-800 dark:text-gray-100 font-semibold">
-                                            <UserNameDisplay userId={editData?.payment_person} />
+                            )}
 
-                                        </span>
+                            {user?.role == 1 && editData?.payment_type == 2 && (
+                                <div>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment From:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> Lanceo </span>
+                                    </p>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment To:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> <UserNameDisplay userId={editData?.payment_person} /> </span>
                                     </p>
                                 </div>
-                            }
+                            )}
+
+                            {user?.role != 1 && editData?.payment_type == 2 && (
+                                <div>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment From:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> Lanceo </span>
+                                    </p>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment To:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> <UserNameDisplay userId={editData?.payment_person} /> </span>
+                                    </p>
+                                </div>
+                            )}
+
+                            {user?.role != 1 && editData?.payment_type == 1 && (
+                                 <div>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment From:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> <UserNameDisplay userId={editData?.payment_person} /> </span>
+                                    </p>
+                                    <p className="font-medium text-gray-600 dark:text-gray-400"> Payment To:{" "}
+                                        <span className="text-gray-800 dark:text-gray-100 font-semibold"> Lanceo </span>
+                                    </p>
+                                </div>
+                            )}
+
                             <p className="font-medium text-gray-600 dark:text-gray-400">
                                 Amount:{" "}
                                 <span className="text-gray-800 dark:text-gray-100 font-semibold">

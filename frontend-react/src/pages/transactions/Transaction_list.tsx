@@ -211,7 +211,7 @@ const Transaction_list = () => {
                 {/* Transaction History List */}
                 <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-800 rounded-xl divide-y divide-gray-100 dark:divide-gray-800">
                     {listData?.data?.map((transaction) => {
-                        const isReceived = transaction?.payment_type == 1;
+                        const isReceived = (transaction?.payment_type == 1 && user?.role == 1) || (transaction?.payment_type == 2 && user?.role != 1);
 
                         return (
                             <div
