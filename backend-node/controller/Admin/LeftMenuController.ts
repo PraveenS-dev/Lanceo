@@ -9,10 +9,10 @@ import { sendNotification } from "./NotificationController";
 const List = async (req: Request, res: Response) => {
 
     try {
-        const { name, role, isParent, created_by, page } = req.query;
+        const { name, role, isParent, created_by, parentId, page } = req.query;
 
         const currentPage = parseInt(page as string) || 1;
-        const limit = 30;
+        const limit = 10;
         const skip = (currentPage - 1) * limit;
 
         const searchCondition: any = { status: 1, trash: "NO" };
@@ -21,6 +21,7 @@ const List = async (req: Request, res: Response) => {
         if (role) searchCondition.role = { $regex: role, $options: "i" };
         if (isParent) searchCondition.isParent = Number(isParent);
         if (created_by) searchCondition.created_by = created_by;
+        if (parentId) searchCondition.parentId = parentId;
 
         const listData = await LeftMenu.find(searchCondition)
             .sort({ created_at: -1 })
@@ -245,9 +246,9 @@ const getAllData = async (req: Request, res: Response) => {
 
         const listData = await LeftMenu.find(searchCondition);
 
-        let finalList:any[] = [];
+        let finalList: any[] = [];
         listData.map(
-            (data:any) => {
+            (data: any) => {
                 let role = data.role.split(",");
                 if (role.includes(String(user_role))) {
                     finalList.push(data);

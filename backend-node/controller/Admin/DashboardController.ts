@@ -340,32 +340,29 @@ export const TransactionStats = async (req: Request, res: Response) => {
   try {
     const { year, month, user_id, role } = req.query;
 
-    // console.log("TransactionStats - Received params:", { year, month, user_id, role });
+    const isAdmin = role === "1";
+
+    const typeMapping = {
+      received: isAdmin ? 1 : 2,
+      sent: isAdmin ? 2 : 1
+    };
 
     const match: any = { status: 1, trash: "NO" };
 
-    // Role-based filtering
     if (role === "2" || role === "3") {
-      // Freelancer or Client - see own transactions
       match.payment_person = user_id;
     }
-    // Admin (role 1) sees all transactions
 
-    // Filter by year and month if provided
     let filterYear = parseInt(year as string) || new Date().getFullYear();
     let filterMonth = month && month !== 'undefined' ? parseInt(month as string) : null;
 
-    // console.log("TransactionStats - filterYear:", filterYear, "filterMonth:", filterMonth);
 
-    // First, get the total count of matching documents
     const totalCount = await Transaction.countDocuments(match);
-    // console.log("TransactionStats - Total matching documents with base filter:", totalCount);
 
     if (filterMonth !== null) {
-      // Filter for specific month
       const startDate = new Date(filterYear, filterMonth, 1);
-      const endDate = filterMonth === 11 
-        ? new Date(filterYear + 1, 0, 1) 
+      const endDate = filterMonth === 11
+        ? new Date(filterYear + 1, 0, 1)
         : new Date(filterYear, filterMonth + 1, 1);
 
       match.created_at = {
@@ -383,9 +380,9 @@ export const TransactionStats = async (req: Request, res: Response) => {
       let receivedAmount = 0;
 
       transactionData.forEach((item) => {
-        if (item._id === 1) {
+        if (item._id === typeMapping.received) {
           receivedAmount = item.amount;
-        } else if (item._id === 2) {
+        } else if (item._id === typeMapping.sent) {
           sentAmount = item.amount;
         }
       });
@@ -401,10 +398,10 @@ export const TransactionStats = async (req: Request, res: Response) => {
             total: {
               $sum: {
                 $cond: [
-                  { $eq: ["$payment_type", 1] },
+                  { $eq: ["$payment_type", typeMapping.received] },
                   { $toDouble: "$amount" },
-                  { $multiply: [{ $toDouble: "$amount" }, -1] },
-                ],
+                  { $multiply: [{ $toDouble: "$amount" }, -1] }
+                ]
               },
             },
           },
@@ -470,9 +467,9 @@ export const TransactionStats = async (req: Request, res: Response) => {
       let receivedAmount = 0;
 
       yearTransactionData.forEach((item) => {
-        if (item._id === 1) {
+        if (item._id === typeMapping.received) {
           receivedAmount = item.amount;
-        } else if (item._id === 2) {
+        } else if (item._id === typeMapping.sent) {
           sentAmount = item.amount;
         }
       });
@@ -488,10 +485,10 @@ export const TransactionStats = async (req: Request, res: Response) => {
             total: {
               $sum: {
                 $cond: [
-                  { $eq: ["$payment_type", 1] },
+                  { $eq: ["$payment_type", typeMapping.received] },
                   { $toDouble: "$amount" },
-                  { $multiply: [{ $toDouble: "$amount" }, -1] },
-                ],
+                  { $multiply: [{ $toDouble: "$amount" }, -1] }
+                ]
               },
             },
           },

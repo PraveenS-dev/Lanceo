@@ -26,6 +26,12 @@ export interface LoginResponse {
     };
 }
 
+type ListData = {
+    name: string | null,
+    email: string | null,
+    role: string | null,
+}
+
 const API_BASE_URL = import.meta.env.VITE_NODE_BASE_URL;
 
 // Create axios instance with default config
@@ -169,5 +175,32 @@ export const fetchReviewById = async (user_id: string, user_role: Number) => {
         throw err;
     }
 };
+
+export const ListData = async (data: ListData) => {
+    try {
+        const res = await apiClient.get('/list', { params: data });
+        return res;
+    } catch (err: any) {
+        throw err;
+    }
+}
+
+export const deleteItem = async (id: string) => {
+    try {
+        const res = await apiClient.post('/delete', { id });
+        return res;
+    } catch (err: any) {
+        throw err;
+    }
+}
+
+export const changeStatus = async (id: string, old_status: number) => {
+    try {
+        const res = await apiClient.post('/changeStatus', { id, old_status });
+        return res;
+    } catch (err: any) {
+        throw err;
+    }
+}
 
 export { apiClient, apiMultipart };

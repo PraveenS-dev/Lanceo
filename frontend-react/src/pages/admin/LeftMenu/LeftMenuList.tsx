@@ -6,7 +6,7 @@ import "flatpickr/dist/flatpickr.min.css";
 import { useAuth } from '../../../contexts/AuthContext';
 import { ShowToast } from '../../../utils/showToast';
 import BrudCrumbs from '../../../components/BrudCrumbs';
-import { deleteItem, getLeftMenuListData } from '../../../services/LeftMenu';
+import { deleteItem, getAllParents, getLeftMenuListData } from '../../../services/LeftMenu';
 import Add_btn from '../../../components/Buttons/Add_btn';
 import FilterBtn from '../../../components/Buttons/Filter_btn';
 import Reset_btn from '../../../components/Buttons/Reset_btn';
@@ -49,6 +49,7 @@ const List = () => {
   const [page, setPage] = useState<Number>(1);
   const [listData, setListData] = useState<any>(null);
   const [showFilter, setShowFilter] = useState(false);
+  const [parent_options, setParent_options] = useState<any>([]);
 
 
   useEffect(() => {
@@ -83,6 +84,14 @@ const List = () => {
       ShowToast(err.response?.data?.message || "Something went wrong", "error");
     }
   };
+
+  useEffect(() => {
+    const getParent = async () => {
+      const res = await getAllParents();
+      setParent_options(res);
+    }
+    getParent();
+  }, []);
 
   const handleReset = () => {
     reset();
@@ -150,7 +159,7 @@ const List = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="overflow-hidden mt-3"
+            className="mt-3"
           >
             <form onSubmit={handleSubmit(onSubmit)} className='px-3 border-b-2 pb-4 rounded bg-white dark:bg-gray-700 border-red-300 dark:border-red-600/30'>
 
@@ -210,12 +219,22 @@ const List = () => {
                   </div>
                 </div>
 
-                <div className=" mt-3">
-                  <label htmlFor="parentId" className='form-label'>Parent Id</label>
-                  <input type="text" className='form-control' id='parentId'
-                    {...register("parentId")} />
-                </div>
 
+
+                <div className=" mt-3 z-10">
+                  <label htmlFor="parentId" className='form-label'>Parent</label>
+                  <Controller
+                    name="parentId"
+                    control={control}
+                    render={({ field }) => (
+                      <DarkModeSelect
+                        {...field}
+                        options={parent_options}
+                        placeholder="Select parent..."
+                      />
+                    )}
+                  />
+                </div>
               </div>
 
               <div className='flex justify-end mt-5'>

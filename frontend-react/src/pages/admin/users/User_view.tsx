@@ -1,21 +1,22 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { fetchUserById, uploadProfileImage, uploadCoverImage, fetchReviewById } from "../services/Auth";
-import BrudCrumbs from "../components/BrudCrumbs";
-import { useAuth } from "../contexts/AuthContext";
+import { fetchUserById, uploadProfileImage, uploadCoverImage, fetchReviewById } from "../../../services/Auth";
+import BrudCrumbs from "../../../components/BrudCrumbs";
 import { motion } from "framer-motion";
 import { Calendar, Mail, Shield, Wallet, Edit, Star } from "lucide-react";
 import Cropper from 'react-easy-crop';
-import getCroppedImg from '../utils/cropHelper';
-import { displayDateFormat } from "../services/Helpers";
+import getCroppedImg from '../../../utils/cropHelper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/autoplay';
 import { Dialog } from "@headlessui/react";
+import { displayDateFormat } from "../../../services/Helpers";
+import { useParams } from "react-router-dom";
 
-const Profile = () => {
-    const { user, refreshUser } = useAuth();
+const User_View = () => {
+
+    const { user_id } = useParams<({ user_id: string })>();
     const [editData, setEditData] = useState<any>(null);
     const [reviewData, setReviewData] = useState<any>(null);
     // Image crop/upload states
@@ -38,8 +39,6 @@ const Profile = () => {
         { label: "Home", path: "/dashboard" },
         { label: "Profile" },
     ];
-
-    const user_id = user?.id;
 
     const fetchData = async () => {
         if (!user_id) return;
@@ -77,9 +76,8 @@ const Profile = () => {
         try {
             const payload: any = { name: formName, profile_description: formDescription, upi_id: formUpi };
             // import service function dynamically to avoid circular issues
-            const { updateProfileInfo } = await import('../services/Auth');
+            const { updateProfileInfo } = await import('../../../services/Auth');
             await updateProfileInfo(payload);
-            await refreshUser();
             const res = await fetchUserById(user_id as string);
             setEditData(res.userDetails);
             setShowEditProfileModal(false);
@@ -124,9 +122,6 @@ const Profile = () => {
             } else {
                 await uploadCoverImage(file);
             }
-
-            // Refresh user data and local editData
-            await refreshUser();
             const res = await fetchUserById(user_id as string);
             setEditData(res.userDetails);
 
@@ -464,7 +459,7 @@ const Profile = () => {
                     <Dialog.Panel className="mx-auto w-full max-w-2xl rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-gray-200 dark:border-gray-700 animate-fadeIn">
 
                         <Dialog.Title className="flex items-center text-xl font-bold text-gray-900 dark:text-gray-100 mb-5">
-                           <Star
+                            <Star
                                 size={18}
                                 className="text-yellow-500 fill-yellow-500 dark:text-yellow-400 dark:fill-yellow-400 me-2"
                             /> Ratings & Reviews
@@ -527,5 +522,5 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default User_View;
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { socket } from "../../utils/socket";
 import ChatWindow from "./ChatWindow";
+import { FaRegComments } from "react-icons/fa";
 
 type ChatItem = {
     contactId: string;
@@ -123,12 +124,21 @@ export default function ChatDropdown({ userId }: { userId?: string }) {
             {/* Trigger Icon */}
             <button
                 aria-label="Open messages"
-                onClick={() => setIsOpen((s) => !s)}
-                className="relative p-2 bg-red-500 text-white rounded-full hover:scale-105 transition-transform"
+                onClick={() => setIsOpen(s => !s)}
+                className="relative p-2 rounded-full 
+               hover:bg-red-700/60 dark:hover:bg-red-900/60 
+               transition cursor-pointer"
             >
-                💬
+                <FaRegComments size={24} className="text-white dark:text-red-50" />
+
                 {totalUnread > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-yellow-400 text-xs rounded-full px-2 text-black font-semibold">
+                    <span className="absolute -top-1 -right-1 
+                         bg-white text-red-600 
+                         dark:bg-red-50 dark:text-red-800
+                         text-xs rounded-full w-5 h-5 
+                         flex items-center justify-center 
+                         font-semibold shadow-sm 
+                         border border-red-500 dark:border-red-700">
                         {totalUnread}
                     </span>
                 )}

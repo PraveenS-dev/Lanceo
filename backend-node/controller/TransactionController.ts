@@ -20,7 +20,7 @@ const List = async (req: Request, res: Response) => {
         if (user_role == "3") searchCondition.payment_person = user_id;
 
         const listData = await Transaction.find(searchCondition)
-            .populate("project_id", "title deadline") // get only 'title' from project
+            .populate("project_id", "title deadline") // get only 'title' and 'deadline' from project
             .sort({ created_at: -1 })
             .skip(skip)
             .limit(limit);
@@ -30,10 +30,18 @@ const List = async (req: Request, res: Response) => {
         let total_send_amount = 0;
 
         listData.forEach((data) => {
-            if (data.payment_type == 1) {
-                total_received_amount += Number(data.amount);
+            if (user_role == "1") {
+                if (data.payment_type == 1) {
+                    total_received_amount += Number(data.amount);
+                } else {
+                    total_send_amount += Number(data.amount);
+                }
             } else {
-                total_send_amount += Number(data.amount);
+                if (data.payment_type == 2) {
+                    total_received_amount += Number(data.amount);
+                } else {
+                    total_send_amount += Number(data.amount);
+                }
             }
         });
 

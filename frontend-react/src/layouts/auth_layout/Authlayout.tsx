@@ -21,6 +21,26 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, pageUrl, pageName }) 
                 <div
                     className={`w-full ${pageUrl === "register" ? "max-w-xl" : "max-w-md"} bg-white dark:bg-gray-700 p-10 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700`}
                 >
+                    <div className="sm:absolute sm:top-4 sm:left-4 flex justify-center mb-3">
+                        <div className="flex items-center gap-2">
+                            <div className="overflow-hidden rounded-full w-10">
+                                <img
+                                    src="../../../public/logo.png"
+                                    alt=""
+                                    className="w-15 rounded-full overflow-hidden scale-150 transition-transform duration-300"
+                                />
+                            </div>
+
+                            <h1
+                                className="sm:block font-extrabold text-3xl tracking-wide 
+                                bg-gradient-to-r from-red-500 via-red-700 to-red-800 text-transparent bg-clip-text"
+                            >
+                                {import.meta.env.VITE_APP_NAME}
+                            </h1>
+
+                        </div>
+                    </div>
+
                     <div className="absolute top-4 right-4">
                         <ThemeToggle />
                     </div>

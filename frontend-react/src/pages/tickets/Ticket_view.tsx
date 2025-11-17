@@ -111,7 +111,7 @@ const Ticket_view = () => {
                                     </div>
                                 )}
                                 
-                                {editData?.client_percent && (
+                                {editData?.ticketstatus == 2 && (
                                     <div className="flex flex-col">
                                         <span className="text-xs uppercase text-gray-500 dark:text-gray-400 font-semibold mb-1">
                                             Client get
@@ -121,8 +121,7 @@ const Ticket_view = () => {
                                         </span>
                                     </div>
                                 )}
-
-                                {editData?.freelancer_percent && (
+                                {editData?.ticketstatus == 2 && (
                                     <div className="flex flex-col">
                                         <span className="text-xs uppercase text-gray-500 dark:text-gray-400 font-semibold mb-1">
                                             Freelancer get

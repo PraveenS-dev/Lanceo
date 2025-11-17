@@ -43,6 +43,20 @@ const Notification = () => {
         }
     };
 
+    const MarkAllAsRead = async () => {
+        if (!userId) return;
+
+        await apiClient.post("/notifications/markAllRead", { userId });
+
+        // Instantly update UI
+        setNotifications(prev =>
+            prev.map(n => ({
+                ...n,
+                isRead: true
+            }))
+        );
+    };
+
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
     return (
@@ -72,9 +86,20 @@ const Notification = () => {
                         sm:w-80 sm:max-w-none
                     "
                 >
-                    <h4 className="p-3 font-semibold text-white bg-red-600 dark:bg-red-700">
-                        Notifications
-                    </h4>
+                    <div className="flex justify-between bg-red-600 dark:bg-red-700 text-white">
+                        <h4 className="p-3 font-semibold">Notifications</h4>
+
+                        <button
+                            className="px-3 py-1.5 m-2 text-xs font-medium rounded-full
+                            bg-white/20 hover:bg-white/30 
+                            backdrop-blur-md transition-all duration-300
+                            hover:shadow-[0_0_10px_rgba(255,255,255,0.4)]
+                            active:scale-95 cursor-pointer"
+                        onClick={() => MarkAllAsRead()} >
+                            Mark all as read
+                        </button>
+                    </div>
+
                     <div className="max-h-80 overflow-y-auto">
                         {notifications.length === 0 ? (
                             <p className="p-4 text-center text-gray-500 dark:text-gray-400">

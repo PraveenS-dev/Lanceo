@@ -28,6 +28,8 @@ import Transaction_view from './pages/transactions/Transaction_view'
 import Ticket_list from './pages/tickets/Ticket_list'
 import Ticket_view from './pages/tickets/Ticket_view'
 import Profile from './pages/Profile'
+import User_List from './pages/admin/users/User_List'
+import User_View from './pages/admin/users/User_view'
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -153,6 +155,18 @@ function App() {
         <Route path='/profile' element={
           <ProtectedRoute>
             <Mainlayout pageUrl="/profile" pageName="Profile"><Profile /></Mainlayout>
+          </ProtectedRoute>
+        } />
+
+         {/* User Routes */}
+        <Route path='/users/list' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/users/list" pageName="User List"><User_List /></Mainlayout>
+          </ProtectedRoute>
+        } />
+        <Route path='/users/view/:user_id' element={
+          <ProtectedRoute>
+            <Mainlayout pageUrl="/users/view/:user_id" pageName="User View"><User_View /></Mainlayout>
           </ProtectedRoute>
         } />
 

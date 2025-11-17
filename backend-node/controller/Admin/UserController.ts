@@ -48,8 +48,14 @@ const Register = async (req: Request, res: Response) => {
 const Login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-        const existUser = await User.findOne({ email, status: 1, trash: "NO" });
+        const existUser = await User.findOne({ email });
         if (!existUser) return res.status(400).json({ message: "Invalid credentials !" });
+
+        if (existUser.trash === "YES") {
+            return res.status(400).json({ message: "Your account has been deleted please contact support!" });
+        } else if (existUser.status === 0) {
+            return res.status(400).json({ message: "Your account has been deactivated please contact support!" });
+        }
 
         const isMatch = await bcrypt.compare(password, existUser.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid credentials !" });
@@ -65,7 +71,6 @@ const Login = async (req: Request, res: Response) => {
         });
     }
     catch (err) {
-        console.error("Login error:", err);
         res.status(500).json({ message: "Server error" });
     }
 }
@@ -207,7 +212,6 @@ const updateCoverImage = async (req: any, res: any) => {
     }
 };
 
-export { updateProfileImage, updateCoverImage };
 
 // Update basic profile info: name, profile_description, upi_id
 const updateProfileInfo = async (req: any, res: any) => {
@@ -280,4 +284,68 @@ const getReviewData = async (req: any, res: any) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
-export { updateProfileInfo, getReviewData };
+
+const List = async (req: Request, res: Response) => {
+
+    try {
+        const { name, role, email, page } = req.query;
+
+        const currentPage = parseInt(page as string) || 1;
+        const limit = 10;
+        const skip = (currentPage - 1) * limit;
+
+        const searchCondition: any = { trash: "NO" };
+
+        if (name) searchCondition.name = { $regex: name, $options: "i" };
+        if (role) searchCondition.role = role;
+        if (email) searchCondition.email = email;
+
+        const listData = await User.find(searchCondition)
+            .sort({ created_at: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const total = await User.countDocuments(searchCondition);
+
+        res.json({
+            data: listData,
+            totalPages: Math.ceil(total / limit),
+            currentPage,
+            totalRecords: total,
+            res: req.query
+        });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err });
+    }
+}
+
+const Delete = async (req: Request, res: Response) => {
+    try {
+
+        const { id } = req.body;
+
+        const data = await User.findByIdAndUpdate(id, { status: 0, trash: "YES", deletedAt: new Date(), });
+        return res.status(200).json({ message: "User deleted Successfully!" });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+const ChangeStatus = async (req: Request, res: Response) => {
+    try {
+
+        const { id, old_status } = req.body;
+
+        let new_status = old_status == 1 ? 0 : 1;
+
+        const data = await User.findByIdAndUpdate(id, { status: new_status });
+        return res.status(200).json({ message: "Status Changed Successfully!" });
+
+    } catch (err: any) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export { updateProfileInfo, getReviewData, updateProfileImage, updateCoverImage, List, ChangeStatus, Delete };
