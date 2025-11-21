@@ -10,7 +10,6 @@ import "flatpickr/dist/flatpickr.min.css";
 import Search_btn from '../../components/Buttons/Search_btn';
 import Reset_btn from '../../components/Buttons/Reset_btn';
 import FilterBtn from '../../components/Buttons/Filter_btn';
-import Swal from 'sweetalert2';
 import { getAllProjectName } from '../../services/Project';
 import { useUserName } from '../../utils/useUserName';
 import TicketReasons from "../../data/TicketReasons.json";
@@ -25,7 +24,7 @@ type FormInputs = {
 }
 
 const Ticket_list = () => {
-    const { register, control, handleSubmit, reset, formState: { isSubmitting } } = useForm<FormInputs>({
+    const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm<FormInputs>({
         defaultValues: {
             project_id: null,
             created_by: null,
@@ -44,40 +43,6 @@ const Ticket_list = () => {
         handleSubmit(onSubmit)();
 
     }, [page]);
-
-    const deleteListItem = async (id: string) => {
-        const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-        });
-
-        if (result.isConfirmed) {
-            try {
-                await deleteItem(id); // your delete function
-                await handleSubmit(onSubmit)(); // refresh or re-fetch list
-
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Item has been deleted.",
-                    icon: "success",
-                    timer: 1500,
-                    showConfirmButton: false,
-                });
-            } catch (err) {
-                Swal.fire({
-                    title: "Error!",
-                    text: "Something went wrong.",
-                    icon: "error",
-                });
-            }
-        }
-    };
 
     const crumbs = [
         { label: "Home", path: "/dashboard" },

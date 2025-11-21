@@ -31,7 +31,7 @@ const View = () => {
   const [bittingVisible, setBittingVisible] = useState(false);
   const [chatUser, setChatUser] = useState<any>(null);
   const [isStartingChat, setIsStartingChat] = useState(false);
-  const [chatDebug, setChatDebug] = useState<any>({ lastEvent: null, status: null, body: null, error: null });
+  const [ setChatDebug] = useState<any>({ lastEvent: null, status: null, body: null, error: null });
   const [lastBitData, setLastBitData] = useState<any>(null);
 
   const userId = user?.id;
