@@ -10,10 +10,9 @@ import "flatpickr/dist/flatpickr.min.css";
 import Search_btn from '../../components/Buttons/Search_btn';
 import Reset_btn from '../../components/Buttons/Reset_btn';
 import FilterBtn from '../../components/Buttons/Filter_btn';
-import Swal from 'sweetalert2';
 import { getAllProjectName } from '../../services/Project';
-import { displayDateTimeFormat, getTransactionType } from '../../services/Helpers';
-import { deleteItem, getListData } from '../../services/Transaction';
+import { displayDateTimeFormat } from '../../services/Helpers';
+import { getListData } from '../../services/Transaction';
 import { useUserName } from '../../utils/useUserName';
 import { FaDownLeftAndUpRightToCenter, FaArrowUpRightFromSquare } from "react-icons/fa6";
 
@@ -25,7 +24,7 @@ type FormInputs = {
 }
 
 const Transaction_list = () => {
-    const { register, control, handleSubmit, reset, formState: { isSubmitting } } = useForm<FormInputs>({
+    const { control, handleSubmit, reset, formState: { isSubmitting } } = useForm<FormInputs>({
         defaultValues: {
             project_id: null,
             created_by: null,
@@ -44,40 +43,6 @@ const Transaction_list = () => {
         handleSubmit(onSubmit)();
 
     }, [page]);
-
-    const deleteListItem = async (id: string) => {
-        const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-        });
-
-        if (result.isConfirmed) {
-            try {
-                await deleteItem(id); // your delete function
-                await handleSubmit(onSubmit)(); // refresh or re-fetch list
-
-                Swal.fire({
-                    title: "Deleted!",
-                    text: "Item has been deleted.",
-                    icon: "success",
-                    timer: 1500,
-                    showConfirmButton: false,
-                });
-            } catch (err) {
-                Swal.fire({
-                    title: "Error!",
-                    text: "Something went wrong.",
-                    icon: "error",
-                });
-            }
-        }
-    };
 
     const crumbs = [
         { label: "Home", path: "/dashboard" },
@@ -210,7 +175,7 @@ const Transaction_list = () => {
 
                 {/* Transaction History List */}
                 <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-800 rounded-xl divide-y divide-gray-100 dark:divide-gray-800">
-                    {listData?.data?.map((transaction) => {
+                    {listData?.data?.map((transaction:any) => {
                         const isReceived = (transaction?.payment_type == 1 && user?.role == 1) || (transaction?.payment_type == 2 && user?.role != 1);
 
                         return (

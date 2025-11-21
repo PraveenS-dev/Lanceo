@@ -2,14 +2,14 @@ import { useParams } from 'react-router-dom';
 import Back_btn from '../../components/Buttons/Back_btn';
 import BrudCrumbs from '../../components/BrudCrumbs';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+// import { useAuth } from '../../contexts/AuthContext';
 import { useUserName } from '../../utils/useUserName';
 import { getData } from '../../services/Tickets';
 import { displayDateTimeFormat, getTicketReason, getTicketStatus } from '../../services/Helpers';
 
 const Ticket_view = () => {
     const { ticket_id } = useParams<({ ticket_id: string })>();
-    const { user } = useAuth();
+    // const { user } = useAuth();
     const [editData, setEditData] = useState<any>(null);
 
     const crumbs = [
