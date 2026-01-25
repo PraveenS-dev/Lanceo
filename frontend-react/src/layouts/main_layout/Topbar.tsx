@@ -62,7 +62,7 @@ const Topbar: React.FC<TopbarProps> = ({ toggleLeftMenu }) => {
                 </button>
                 <div className="overflow-hidden rounded-full w-10">
                     <img
-                        src="../../../public/logo.png"
+                        src="/logo.png"
                         alt=""
                         className="w-15 rounded-full overflow-hidden scale-150 transition-transform duration-300"
                     />
