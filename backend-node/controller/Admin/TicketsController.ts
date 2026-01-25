@@ -202,12 +202,12 @@ const closeTicket = async (req?: Request | null, res?: Response | null) => {
         });
 
         if (!TicketsDetails.length) {
-            console.log("🟡 No tickets found for 3 days ago.");
+            // console.log("🟡 No tickets found for 3 days ago.");
             if (res) return res.status(200).json({ message: "No tickets to process." });
             return;
         }
 
-        console.log(`🚀 Found ${TicketsDetails.length} tickets to process.`);
+        // console.log(`🚀 Found ${TicketsDetails.length} tickets to process.`);
 
         const allResults: any[] = [];
 
@@ -360,7 +360,7 @@ const closeTicket = async (req?: Request | null, res?: Response | null) => {
             allResults.push({ ticket_id, results });
         }
 
-        console.log("✅ Ticket close process complete.");
+        // console.log("✅ Ticket close process complete.");
         if (res) {
             return res.status(200).json({ message: "Ticket close process complete.", allResults });
         }

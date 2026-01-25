@@ -28,7 +28,7 @@ const Bitting_view = () => {
     const [bittingVisible, setBittingVisible] = useState(false);
     const [chatUser, setChatUser] = useState<any>(null);
     const [isStartingChat, setIsStartingChat] = useState(false);
-    const [, setChatDebug] = useState<any>({ lastEvent: null, status: null, body: null, error: null });
+    const [chatDebug, setChatDebug] = useState<any>({ lastEvent: null, status: null, body: null, error: null });
     const { register, reset, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormInputs>({ mode: "onChange" });
     const [actionStatus, setActionStatus] = useState(null);
     const [lastBitData, setLastBitData] = useState<any>(null);
@@ -47,7 +47,7 @@ const Bitting_view = () => {
             return;
         }
 
-        console.log("Starting chat", { userId, contactId });
+        // console.log("Starting chat", { userId, contactId });
         setChatDebug({ lastEvent: 'starting', status: null, body: null, error: null });
         setIsStartingChat(true);
 
@@ -74,7 +74,7 @@ const Bitting_view = () => {
                 return;
             }
 
-            console.log("Chat started", data);
+            // console.log("Chat started", data);
             setChatDebug({ lastEvent: 'started', status: 200, body: data, error: null });
             setChatUser({
                 userId: contactId,

@@ -61,7 +61,7 @@ const User_View = () => {
             setReviewData([]);
         }
 
-        console.log('Formatted Reviews:', ReviewData);
+        // console.log('Formatted Reviews:', ReviewData);
     };
 
     const openEditProfileModal = () => {
@@ -144,7 +144,7 @@ const User_View = () => {
         fetchReviewData();
     }, [user_id, editData]);
 
-    console.log(reviewData);
+    // console.log(reviewData);
 
     if (!editData)
         return (

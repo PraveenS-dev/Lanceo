@@ -416,8 +416,8 @@ const releasePayment = async (req?: Request | null, res?: Response | null): Prom
         if (res && typeof res.status === "function") {
             return res.status(code).json(body);
         }
-        if (code >= 400) console.error("releasePayment:", body);
-        else console.log("releasePayment:", body);
+        // if (code >= 400) console.error("releasePayment:", body);
+        // else console.log("releasePayment:", body);
         return;
     };
 

@@ -32,7 +32,7 @@ const sendNotification = async (options: NotifyOptions) => {
             ...newNotification.toObject(),
             isRead: false,
         });
-        console.log(`Sent notification to room ${roomName}`);
+        // console.log(`Sent notification to room ${roomName}`);
     });
 
     return newNotification;

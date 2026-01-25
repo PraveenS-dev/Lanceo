@@ -12,7 +12,7 @@ export const transporter = nodemailer.createTransport({
 
 transporter.verify((err, success) => {
     if (err) console.error("Mailer error:", err);
-    else console.log("Mailer ready");
+    // else console.log("Mailer ready");
 });
 
 export const sendMail = async (to: string[] | string, subject: string, html: string) => {

@@ -72,7 +72,7 @@ const Bitting_list = () => {
       if (data.project_id !== undefined) params.project_id = data.project_id;
       if (data.created_by !== undefined) params.created_by = data.created_by;
 
-console.log(data.project_id);
+// console.log(data.project_id);
 
       const res = await getBittingListData(params);
 

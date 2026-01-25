@@ -31,7 +31,7 @@ const View = () => {
   const [bittingVisible, setBittingVisible] = useState(false);
   const [chatUser, setChatUser] = useState<any>(null);
   const [isStartingChat, setIsStartingChat] = useState(false);
-  const [ setChatDebug] = useState<any>({ lastEvent: null, status: null, body: null, error: null });
+  const [ chatDebug, setChatDebug] = useState<any>({ lastEvent: null, status: null, body: null, error: null });
   const [lastBitData, setLastBitData] = useState<any>(null);
 
   const userId = user?.id;
@@ -48,7 +48,7 @@ const View = () => {
       return;
     }
 
-    console.log("Starting chat", { userId, contactId });
+    // console.log("Starting chat", { userId, contactId });
     setChatDebug({ lastEvent: 'starting', status: null, body: null, error: null });
     setIsStartingChat(true);
 
@@ -75,7 +75,7 @@ const View = () => {
         return;
       }
 
-      console.log("Chat started", data);
+      // console.log("Chat started", data);
       setChatDebug({ lastEvent: 'started', status: 200, body: data, error: null });
       setChatUser({
         userId: contactId,
@@ -100,7 +100,7 @@ const View = () => {
 
   const fetchLastBitData = async () => {
     const res = await getLastBitting(id, user?.id);
-    console.log(res);
+    // console.log(res);
     
     setLastBitData(res);
   };
