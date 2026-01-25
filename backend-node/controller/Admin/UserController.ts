@@ -11,7 +11,7 @@ const Register = async (req: Request, res: Response) => {
     try {
         const { name, username, email, role, password } = req.body;
 
-        console.log(req.body);
+        // console.log(req.body);
 
         if (name == "" || name == null) {
             return res.status(400).json({ message: "Name is Required!" })
@@ -103,7 +103,7 @@ const uniqueUserName = async (req: Request, res: Response) => {
         }
 
     } catch (err: any) {
-        console.log(err.message);
+        // console.log(err.message);
 
         return res.status(500).json({ message: err.message || "Server error" });
     }

@@ -13,10 +13,10 @@ export const useNotification = (userId: string | undefined) => {
         };
 
         const handleReconnect = (attempt: number) => {
-            console.log("🔁 Socket reconnected (attempt):", attempt, "id:", socket.id);
+            // console.log("🔁 Socket reconnected (attempt):", attempt, "id:", socket.id);
             if (userId) {
                 socket.emit("join", userId);
-                console.log("📤 Re-join emitted for user after reconnect:", userId);
+                // console.log("📤 Re-join emitted for user after reconnect:", userId);
             }
         };
 

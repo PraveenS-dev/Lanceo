@@ -79,17 +79,17 @@ app.use("/api/tickets", TicketsRoutes);
 app.use("/api/dashboard", DashboardRoutes);
 
 io.on("connection", (socket) => {
-  console.log("A user connected: " + socket.id);
+  // console.log("A user connected: " + socket.id);
 
   socket.on("join", (userId) => {
     socket.join(`notification_${userId}`);
     socket.join(`user_${userId}`);
-    console.log(`✅ User ${userId} joined notification and chat rooms`);
+    // console.log(`✅ User ${userId} joined notification and chat rooms`);
   });
 
   socket.on("join_user", (userId) => {
     socket.join(`user_${userId}`);
-    console.log(`✅ User ${userId} joined chat room user_${userId}`);
+    // console.log(`✅ User ${userId} joined chat room user_${userId}`);
   });
 
   // Send message event
@@ -148,7 +148,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected: " + socket.id);
+    // console.log("A user disconnected: " + socket.id);
   });
 });
 
