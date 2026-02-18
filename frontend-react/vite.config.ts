@@ -13,4 +13,8 @@ export default defineConfig({
         typescript: false, // 👈 disable TS blocking the build
       }),
     ],
+  server: {
+    host: true,
+    allowedHosts: true
+  }
 })
