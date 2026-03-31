@@ -113,7 +113,7 @@ const Bitting_list = () => {
 
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-3'>
 
-                <div className="mt-3 z-50">
+                <div className="mt-3">
                   <label htmlFor="project_id" className="form-label">Project Name</label>
                   <Controller
                     name="project_id"

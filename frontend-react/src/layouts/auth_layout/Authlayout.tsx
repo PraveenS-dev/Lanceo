@@ -15,65 +15,76 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, pageUrl, pageName }) 
     }, [pageName])
 
     return (
-        <div className="flex min-h-screen min-w-full bg-gray-100 dark:bg-gray-800">
+        <div className="flex min-h-screen bg-gray-100 dark:bg-gray-800">
+
             {/* Left: Form */}
-            <div className={`flex ${pageUrl === "register" ? "flex-1/6" : "flex-1"} justify-center items-center p-8`}>
-                <div
-                    className={`w-full ${pageUrl === "register" ? "max-w-xl" : "max-w-md"} bg-white dark:bg-gray-700 p-10 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700`}
-                >
-                    <div className="sm:absolute sm:top-4 sm:left-4 flex justify-center mb-3">
+            <div className="flex flex-1 justify-center items-center px-4 sm:px-6 lg:px-8 py-6">
+
+                <div className={`w-full ${pageUrl === "register" ? "max-w-xl" : "max-w-md"} 
+                    bg-white dark:bg-gray-700 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 relative`}>
+
+                    {/* Top Bar */}
+                    <div className="flex items-center justify-between mb-6">
+
+                        {/* Logo */}
                         <div className="flex items-center gap-2">
-                            <div className="overflow-hidden rounded-full w-10">
+                            <div className="overflow-hidden rounded-full w-9 h-9">
                                 <img
                                     src="/logo.png"
-                                    alt=""
-                                    className="w-15 rounded-full overflow-hidden scale-150 transition-transform duration-300"
+                                    alt="logo"
+                                    className="w-full h-full object-cover scale-125"
                                 />
                             </div>
 
-                            <h1
-                                className="sm:block font-extrabold text-3xl tracking-wide 
-                                bg-gradient-to-r from-red-500 via-red-700 to-red-800 text-transparent bg-clip-text"
-                            >
+                            <h1 className="font-extrabold text-xl sm:text-2xl tracking-wide 
+                                    bg-gradient-to-r from-red-500 via-red-700 to-red-800 text-transparent bg-clip-text">
                                 {import.meta.env.VITE_APP_NAME}
                             </h1>
-
                         </div>
-                    </div>
 
-                    <div className="absolute top-4 right-4">
+                        {/* Theme Toggle */}
                         <ThemeToggle />
                     </div>
+
+                    {/* Form Content */}
                     {children}
                 </div>
-
             </div>
 
             {/* Right: Info Panel */}
-            <div className="hidden sm:flex flex-1 flex-col justify-center items-center bg-gradient-to-tr from-red-600 to-red-200 dark:from-red-700 dark:to-gray-500 p-12 rounded-l-3xl text-white shadow-lg">
+            <div className="hidden lg:flex flex-1 flex-col justify-center items-center rounded-l-3xl bg-gradient-to-tr from-red-600 to-red-300 dark:from-red-700 dark:to-gray-600 
+                p-12 text-white">
+
                 {pageUrl === "login" && (
                     <div className="text-center max-w-sm">
-                        <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">New Here?</h2>
+                        <h2 className="text-3xl lg:text-4xl font-bold mb-4 drop-shadow-lg">
+                            New Here?
+                        </h2>
                         <p className="mb-8 text-white/90">
                             Sign up and discover amazing opportunities waiting for you!
                         </p>
                         <button
                             onClick={() => navigate("/register")}
-                            className="bg-white text-red-600 font-bold py-3 px-8 rounded-full shadow hover:scale-105 hover:bg-gray-100 transition transform"
+                            className="bg-white text-red-600 font-bold py-3 px-8 rounded-full shadow 
+                            hover:scale-105 hover:bg-gray-100 transition transform"
                         >
                             Sign Up
                         </button>
                     </div>
                 )}
+
                 {pageUrl === "register" && (
                     <div className="text-center max-w-sm">
-                        <h2 className="text-4xl font-bold mb-4 drop-shadow-lg">Already have an account?</h2>
+                        <h2 className="text-3xl lg:text-4xl font-bold mb-4 drop-shadow-lg">
+                            Already have an account?
+                        </h2>
                         <p className="mb-8 text-white/90">
-                            Sign In and access your account instantly!
+                            Sign in and access your account instantly!
                         </p>
                         <button
                             onClick={() => navigate("/login")}
-                            className="bg-white text-red-600 font-bold py-3 px-8 rounded-full shadow hover:scale-105 hover:bg-gray-100 transition transform"
+                            className="bg-white text-red-600 font-bold py-3 px-8 rounded-full shadow 
+          hover:scale-105 hover:bg-gray-100 transition transform"
                         >
                             Sign In
                         </button>

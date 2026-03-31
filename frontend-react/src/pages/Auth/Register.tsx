@@ -69,7 +69,7 @@ const Register: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
         {/* Full name + Username in same row */}
-        <div className="flex gap-5">
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Name */}
           <div className="flex flex-col flex-1">
             <label className="mb-2 font-medium text-gray-700 dark:text-gray-300">Full name</label>
@@ -147,7 +147,7 @@ const Register: React.FC = () => {
         {/* Role selector */}
         <label className="font-medium text-gray-700 dark:text-gray-300 ">I am a</label>
 
-        <div className="flex gap-3 mb-3 mt-3">
+        <div className="flex flex-col sm:flex-row gap-3 mb-3 mt-3">
 
           {["FREELANCER", "CLIENT"].map((role) => (
             <label
@@ -171,7 +171,7 @@ const Register: React.FC = () => {
         </div>
 
         {/* Password + Confirm Password */}
-        <div className="flex gap-5">
+        <div className="flex flex-col md:flex-row gap-4">
           {["password", "confirmPassword"].map((field, idx) => (
             <div className="flex flex-col relative flex-1" key={field}>
               <label className="mb-2 font-medium text-gray-700 dark:text-gray-300">
